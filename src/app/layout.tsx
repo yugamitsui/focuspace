@@ -14,8 +14,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-white text-gray-800 text-base antialiased font-sans tabular-nums">
-        {children}
+      <body className="min-h-screen text-gray-100 text-base antialiased font-sans tabular-nums bg-[url('/images/background_01.png')] bg-cover">
+        <div className="bg-black/40">{children}</div>
       </body>
     </html>
   );
