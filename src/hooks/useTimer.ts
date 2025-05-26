@@ -1,34 +1,40 @@
 import { useEffect, useRef, useState } from "react";
+import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import { getDurations, Mode } from "@/lib/durations";
 
 export function useTimer(initialMode: Mode = "25-5") {
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [timeLeft, setTimeLeft] = useState(getDurations(initialMode).work);
+  const [timeLeft, setTimeLeft] = useState(getDurations(initialMode).workTime);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isRunning) return;
+
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
-          const nextIsBreak = !isBreak;
-          const { work, break: breakTime } = getDurations(mode);
-          setIsBreak(nextIsBreak);
-          setTimeLeft(nextIsBreak ? breakTime : work);
-          return nextIsBreak ? breakTime : work;
+          setIsBreak(!isBreak);
+          const { workTime, breakTime } = getDurations(mode);
+          return isBreak ? workTime : breakTime;
         }
         return prev - 1;
       });
     }, 1000);
+
     return () => clearInterval(timerRef.current!);
   }, [isRunning, isBreak, mode]);
 
   const toggle = () => {
     setIsRunning((prev) => {
-      if (prev) clearInterval(timerRef.current!);
+      if (prev) {
+        clearInterval(timerRef.current!);
+        stopBgm();
+      } else {
+        playBgm();
+      }
       return !prev;
     });
   };
@@ -36,17 +42,19 @@ export function useTimer(initialMode: Mode = "25-5") {
   const reset = () => {
     setIsRunning(false);
     clearInterval(timerRef.current!);
-    const { work, break: breakTime } = getDurations(mode);
-    setTimeLeft(isBreak ? breakTime : work);
+    stopBgm();
+    const { workTime, breakTime } = getDurations(mode);
+    setTimeLeft(isBreak ? breakTime : workTime);
   };
 
   const changeMode = (newMode: Mode) => {
     if (newMode === mode) return;
     setIsRunning(false);
     clearInterval(timerRef.current!);
+    stopBgm();
     setMode(newMode);
     setIsBreak(false);
-    setTimeLeft(getDurations(newMode).work);
+    setTimeLeft(getDurations(newMode).workTime);
   };
 
   const modes: Mode[] = ["25-5", "52-17", "112-26"];
