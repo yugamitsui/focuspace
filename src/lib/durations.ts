@@ -1,9 +1,10 @@
 export type Mode = "25-5" | "52-17" | "112-26";
 
-export const DURATIONS: Record<Mode, { work: number; break: number }> = {
-  "25-5": { work: 25 * 60, break: 5 * 60 },
-  "52-17": { work: 52 * 60, break: 17 * 60 },
-  "112-26": { work: 112 * 60, break: 26 * 60 },
-};
+export const DURATIONS: Record<Mode, { workTime: number; breakTime: number }> =
+  {
+    "25-5": { workTime: 5 * 1, breakTime: 4 * 1 },
+    "52-17": { workTime: 6 * 1, breakTime: 5 * 1 },
+    "112-26": { workTime: 7 * 1, breakTime: 6 * 1 },
+  };
 
 export const getDurations = (mode: Mode) => DURATIONS[mode];
