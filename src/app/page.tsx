@@ -1,9 +1,5 @@
-import Timer from "@/components/Timer";
+import Home from "@/components/Home";
 
-export default function Home() {
-  return (
-    <main className="flex items-center justify-center min-h-screen">
-      <Timer />
-    </main>
-  );
+export default function Page() {
+  return <Home />;
 }

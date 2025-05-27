@@ -17,8 +17,8 @@ export default function Timer() {
             onClick={() => changeMode(label)}
             className={`px-6 py-2 rounded-full font-medium transition-colors shadow-lg ${
               mode === label
-                ? "bg-gray-800 text-white"
-                : "bg-white hover:bg-gray-100 cursor-pointer"
+                ? "bg-gray-800"
+                : "bg-gray-100 text-gray-800 hover:bg-gray-100 cursor-pointer"
             }`}
           >
             {label}
@@ -30,7 +30,7 @@ export default function Timer() {
         {formatTime(timeLeft)}
       </div>
 
-      <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 shadow-lg bg-white">
+      <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 shadow-lg bg-gray-100 text-gray-800">
         <button
           onClick={toggle}
           className="p-2 transition-colors hover:text-gray-500 cursor-pointer"
