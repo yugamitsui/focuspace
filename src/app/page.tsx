@@ -1,11 +1,5 @@
-import Timer from "@/components/Timer";
-import AvatarSelector from "@/components/AvatarSelector";
+import Home from "@/components/Home";
 
-export default function Home() {
-  return (
-    <main className="flex flex-col items-center justify-center gap-16 min-h-screen">
-      <Timer />
-      <AvatarSelector />
-    </main>
-  );
+export default function Page() {
+  return <Home />;
 }
