@@ -3,6 +3,7 @@
 import { Play, Pause, ArrowClockwise } from "phosphor-react";
 import { useTimer } from "@/hooks/useTimer";
 import { formatTime } from "@/lib/formatTime";
+import AudioVisualizer from "./AudioVisualizer";
 
 export default function Timer() {
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
@@ -15,10 +16,10 @@ export default function Timer() {
           <button
             key={label}
             onClick={() => changeMode(label)}
-            className={`px-6 py-2 rounded-full font-medium transition-colors shadow-lg ${
+            className={`px-6 py-2 rounded-full font-medium transition-colors ${
               mode === label
-                ? "bg-gray-800"
-                : "bg-gray-100 text-gray-800 hover:bg-gray-100 cursor-pointer"
+                ? "bg-black text-white"
+                : "bg-black/50 hover:bg-black hover:text-white cursor-pointer duration-500"
             }`}
           >
             {label}
@@ -26,14 +27,16 @@ export default function Timer() {
         ))}
       </div>
 
-      <div className="font-medium text-8xl tracking-tight">
+      <div className="text-white font-medium text-8xl">
         {formatTime(timeLeft)}
       </div>
 
-      <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 shadow-lg bg-gray-100 text-gray-800">
+      <AudioVisualizer />
+
+      <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 bg-black/50">
         <button
           onClick={toggle}
-          className="p-2 transition-colors hover:text-gray-500 cursor-pointer"
+          className="p-2 transition-colors hover:text-white cursor-pointer duration-500"
           aria-label={isRunning ? "Pause Timer" : "Start Timer"}
         >
           {isRunning ? (
@@ -44,7 +47,7 @@ export default function Timer() {
         </button>
         <button
           onClick={reset}
-          className="p-2 transition-colors hover:text-gray-500 cursor-pointer"
+          className="p-2 transition-colors hover:text-white cursor-pointer duration-500"
           aria-label="Reset Timer"
         >
           <ArrowClockwise size={32} weight="bold" />
