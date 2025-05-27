@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Timer from "@/components/Timer";
+import AudioVisualizer from "./AudioVisualizer";
 import AvatarSelector from "./AvatarSelector";
 import { CaretLeft, CaretRight } from "phosphor-react";
 
@@ -48,6 +49,7 @@ export default function Home() {
 
       <div className="relative z-10 flex flex-col items-center gap-16">
         <Timer />
+        <AudioVisualizer />
         <AvatarSelector />
       </div>
     </main>
