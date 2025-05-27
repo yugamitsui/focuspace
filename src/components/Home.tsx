@@ -30,7 +30,7 @@ export default function Home() {
       <div className="absolute left-0 top-0 bottom-0 flex items-center group p-16 z-20">
         <button
           onClick={prevBg}
-          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500"
+          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer"
         >
           <CaretLeft size={32} weight="bold" />
         </button>
@@ -39,7 +39,7 @@ export default function Home() {
       <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end group p-16 z-20">
         <button
           onClick={nextBg}
-          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500"
+          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer"
         >
           <CaretRight size={32} weight="bold" />
         </button>

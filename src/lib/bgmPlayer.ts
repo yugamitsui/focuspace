@@ -7,10 +7,7 @@ const bgm = new Howl({
 });
 
 export const playBgm = () => {
-  if (!bgm.playing()) {
-    bgm.fade(0, 0.5, 1000);
-    bgm.play();
-  }
+  if (!bgm.playing()) bgm.play();
 };
 
 export const stopBgm = () => {
