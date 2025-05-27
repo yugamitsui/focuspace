@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import { getDurations, Mode } from "@/lib/durations";
+import { playTimerEndSe } from "@/lib/sePlayer";
 
 export function useTimer(initialMode: Mode = "25-5") {
   const [mode, setMode] = useState<Mode>(initialMode);
@@ -16,6 +17,7 @@ export function useTimer(initialMode: Mode = "25-5") {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timerRef.current!);
+          playTimerEndSe();
           setIsBreak(!isBreak);
           const { workTime, breakTime } = getDurations(mode);
           return isBreak ? workTime : breakTime;
