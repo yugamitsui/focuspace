@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Timer from "@/components/Timer";
 import { CaretLeft, CaretRight } from "phosphor-react";
+import RainEffect from "./effects/RainEffect";
+import SnowEffect from "./effects/SnowEffect";
 
 const backgrounds = [
   "/images/background_01.png",
@@ -25,7 +27,9 @@ export default function Home() {
       className="relative flex flex-col items-center justify-center gap-16 min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${backgrounds[bgIndex]})` }}
     >
-      <div className="absolute inset-0 bg-black/50 z-0" />
+      <RainEffect />
+      <SnowEffect />
+      <div className="absolute inset-0 bg-black/25 z-0" />
 
       <div className="absolute left-0 top-0 bottom-0 flex items-center group p-16 z-20">
         <button
