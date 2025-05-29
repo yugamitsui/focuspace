@@ -19,7 +19,7 @@ export default function Timer() {
             className={`px-6 py-2 rounded-full font-medium transition-colors ${
               mode === label
                 ? "bg-black text-white"
-                : "bg-black/50 hover:bg-black hover:text-white cursor-pointer duration-500"
+                : "bg-black/50 hover:bg-black hover:text-white duration-500 cursor-pointer"
             }`}
           >
             {label}
@@ -36,21 +36,17 @@ export default function Timer() {
       <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 bg-black/50">
         <button
           onClick={toggle}
-          className="p-2 transition-colors hover:text-white cursor-pointer duration-500"
+          className="p-2 hover:text-white transition-colorss duration-500 cursor-pointer"
           aria-label={isRunning ? "Pause Timer" : "Start Timer"}
         >
-          {isRunning ? (
-            <Pause size={32} weight="bold" />
-          ) : (
-            <Play size={32} weight="bold" />
-          )}
+          {isRunning ? <Pause size={32} /> : <Play size={32} />}
         </button>
         <button
           onClick={reset}
-          className="p-2 transition-colors hover:text-white cursor-pointer duration-500"
+          className="p-2 hover:text-white transition-colors duration-500 cursor-pointer"
           aria-label="Reset Timer"
         >
-          <ArrowClockwise size={32} weight="bold" />
+          <ArrowClockwise size={32} />
         </button>
       </div>
     </div>
