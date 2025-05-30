@@ -5,7 +5,7 @@ import Timer from "@/components/Timer";
 import { CaretLeft, CaretRight } from "phosphor-react";
 import RainEffect from "./effects/RainEffect";
 import SnowEffect from "./effects/SnowEffect";
-import WeatherSelector, { WeatherType } from "./WeatherSelector";
+import WeatherSelector, { WeatherType } from "./selectors/WeatherSelector";
 
 const backgrounds = [
   "/images/background_01.png",
