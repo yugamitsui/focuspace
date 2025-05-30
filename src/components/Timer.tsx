@@ -4,6 +4,7 @@ import { Play, Pause, ArrowClockwise } from "phosphor-react";
 import { useTimer } from "@/hooks/useTimer";
 import { formatTime } from "@/lib/formatTime";
 import AudioVisualizer from "./AudioVisualizer";
+import MuteButton from "./MuteButton";
 
 export default function Timer() {
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
@@ -34,6 +35,7 @@ export default function Timer() {
       <AudioVisualizer />
 
       <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 bg-black/50">
+        <MuteButton />
         <button
           onClick={toggle}
           className="p-2 hover:text-white transition-colorss duration-500 cursor-pointer"
