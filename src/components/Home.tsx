@@ -2,54 +2,37 @@
 
 import { useState } from "react";
 import Timer from "@/components/Timer";
-import { CaretLeft, CaretRight } from "phosphor-react";
-import RainEffect from "./effects/RainEffect";
-import SnowEffect from "./effects/SnowEffect";
 import WeatherSelector, { WeatherType } from "./selectors/WeatherSelector";
-
-const backgrounds = [
-  "/images/background_01.png",
-  "/images/background_02.png",
-  "/images/background_03.png",
-  "/images/background_04.png",
-  "/images/background_05.png",
-  "/images/background_06.png",
-];
+import { backgroundImages } from "@/components/BackgroundCarousel";
+import WeatherEffect from "@/components/WeatherEffect";
+import NavButton from "@/components/buttons/NavButton";
 
 export default function Home() {
   const [bgIndex, setBgIndex] = useState(0);
   const [weather, setWeather] = useState<WeatherType>("clear");
 
-  const nextBg = () => setBgIndex((prev) => (prev + 1) % backgrounds.length);
-  const prevBg = () =>
-    setBgIndex((prev) => (prev === 0 ? backgrounds.length - 1 : prev - 1));
-
   return (
     <main
       className="relative flex flex-col items-center justify-center gap-16 min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgrounds[bgIndex]})` }}
+      style={{ backgroundImage: `url(${backgroundImages[bgIndex]})` }}
     >
-      {weather === "rain" && <RainEffect />}
-      {weather === "snow" && <SnowEffect />}
+      <WeatherEffect weather={weather} />
       <div className="absolute inset-0 bg-black/25 z-0" />
 
-      <div className="absolute left-0 top-0 bottom-0 flex items-center group p-16 z-20">
-        <button
-          onClick={prevBg}
-          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer"
-        >
-          <CaretLeft size={32} />
-        </button>
-      </div>
-
-      <div className="absolute right-0 top-0 bottom-0 flex items-center justify-end group p-16 z-20">
-        <button
-          onClick={nextBg}
-          className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer"
-        >
-          <CaretRight size={32} />
-        </button>
-      </div>
+      <NavButton
+        direction="left"
+        onClick={() =>
+          setBgIndex((prev) =>
+            prev === 0 ? backgroundImages.length - 1 : prev - 1
+          )
+        }
+      />
+      <NavButton
+        direction="right"
+        onClick={() =>
+          setBgIndex((prev) => (prev + 1) % backgroundImages.length)
+        }
+      />
 
       <div className="absolute top-4 right-4 z-30">
         <WeatherSelector onChange={setWeather} />
