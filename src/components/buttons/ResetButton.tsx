@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise } from "phosphor-react";
+import { ArrowClockwiseIcon } from "@phosphor-icons/react";
 
 type ResetButtonProps = {
   onClick: () => void;
@@ -13,7 +13,7 @@ export default function ResetButton({ onClick }: ResetButtonProps) {
       className="p-2 hover:text-white transition-colors duration-500 cursor-pointer"
       aria-label="Reset Timer"
     >
-      <ArrowClockwise size={32} />
+      <ArrowClockwiseIcon size={32} />
     </button>
   );
 }

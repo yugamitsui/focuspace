@@ -1,5 +1,5 @@
 {
-  "name": "lofi-app",
+  "name": "focuspace",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,11 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@supabase/supabase-js": "^2.49.9",
     "@tailwindcss/postcss": "^4.1.7",
     "howler": "^2.2.4",
     "next": "15.1.8",
-    "phosphor-react": "^1.4.1",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

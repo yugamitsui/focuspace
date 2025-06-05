@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Howler } from "howler";
-import { SpeakerSimpleX, SpeakerSimpleHigh } from "phosphor-react";
+import {
+  SpeakerSimpleXIcon,
+  SpeakerSimpleHighIcon,
+} from "@phosphor-icons/react";
 
 export default function MuteButton() {
   const [isMuted, setIsMuted] = useState(false);
@@ -19,7 +22,11 @@ export default function MuteButton() {
       className="p-2 hover:text-white transition-colors duration-500 cursor-pointer"
       aria-label="Toggle Mute"
     >
-      {isMuted ? <SpeakerSimpleX size={32} /> : <SpeakerSimpleHigh size={32} />}
+      {isMuted ? (
+        <SpeakerSimpleXIcon size={32} />
+      ) : (
+        <SpeakerSimpleHighIcon size={32} />
+      )}
     </button>
   );
 }

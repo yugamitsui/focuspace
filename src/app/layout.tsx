@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lofi Timer",
+  title: "Focuspace",
   description:
     "A minimalist Pomodoro timer with lo-fi vibes to help you focus and relax.",
 };

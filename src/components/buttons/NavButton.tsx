@@ -1,4 +1,4 @@
-import { CaretLeft, CaretRight } from "phosphor-react";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 type Props = {
   direction: "left" | "right";
@@ -18,7 +18,7 @@ export default function NavButton({ direction, onClick }: Props) {
         onClick={onClick}
         className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500 cursor-pointer"
       >
-        {isLeft ? <CaretLeft size={32} /> : <CaretRight size={32} />}
+        {isLeft ? <CaretLeftIcon size={32} /> : <CaretRightIcon size={32} />}
       </button>
     </div>
   );

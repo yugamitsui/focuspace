@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CloudSun, CloudRain, CloudSnow } from "phosphor-react";
+import {
+  CloudSunIcon,
+  CloudRainIcon,
+  CloudSnowIcon,
+} from "@phosphor-icons/react";
 
 export type WeatherType = "clear" | "rain" | "snow";
 
@@ -14,9 +18,9 @@ export default function WeatherSelector({ onChange }: WeatherSelectorProps) {
 
   const weatherOrder: WeatherType[] = ["clear", "rain", "snow"];
   const iconMap: Record<WeatherType, React.JSX.Element> = {
-    clear: <CloudSun size={32} />,
-    rain: <CloudRain size={32} />,
-    snow: <CloudSnow size={32} />,
+    clear: <CloudSunIcon size={32} />,
+    rain: <CloudRainIcon size={32} />,
+    snow: <CloudSnowIcon size={32} />,
   };
 
   const handleClick = () => {
