@@ -3,8 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Focuspace",
-  description:
-    "A minimalist Pomodoro timer with lo-fi vibes to help you focus and relax.",
+  description: "A minimal Pomodoro timer for focused work.",
 };
 
 export default function RootLayout({
