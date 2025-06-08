@@ -34,7 +34,7 @@ export default function Home() {
         }
       />
 
-      <div className="absolute top-4 right-4 z-30">
+      <div className="absolute bottom-4 right-4 z-30">
         <WeatherSelector onChange={setWeather} />
       </div>
 
