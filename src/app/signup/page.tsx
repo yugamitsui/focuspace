@@ -55,18 +55,18 @@ export default function SignupPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-6 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-6 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
           />
           <button
             onClick={handleSignup}
-            className="w-full py-3 bg-white text-black rounded-full font-semibold hover:opacity-90 transition"
+            className="w-full px-6 py-3 bg-white text-black rounded-full font-semibold hover:opacity-90 transition duration-500 cursor-pointer"
           >
             Sign up
           </button>
@@ -81,21 +81,21 @@ export default function SignupPage() {
         <div className="space-y-4">
           <button
             onClick={() => handleOAuthSignup("google")}
-            className="w-full py-3 flex items-center justify-center gap-2 border border-gray-300 rounded-full hover:bg-white hover:text-black transition"
+            className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GoogleLogoIcon size={24} />
             <span className="font-semibold">Sign up with Google</span>
           </button>
           <button
             onClick={() => handleOAuthSignup("github")}
-            className="w-full py-3 flex items-center justify-center gap-2 border border-gray-300 rounded-full hover:bg-white hover:text-black transition"
+            className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GithubLogoIcon size={24} />
             <span className="font-semibold">Sign up with GitHub</span>
           </button>
           <button
             onClick={() => handleOAuthSignup("discord")}
-            className="w-full py-3 flex items-center justify-center gap-2 border border-gray-300 rounded-full hover:bg-white hover:text-black transition"
+            className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <DiscordLogoIcon size={24} />
             <span className="font-semibold">Sign up with Discord</span>
