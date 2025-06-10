@@ -39,7 +39,7 @@ export default function Header() {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="cursor-pointer focus:outline-none"
+              className="block cursor-pointer focus:outline-none"
             >
               {!avatarError && user.avatar_url ? (
                 <Image
@@ -59,7 +59,10 @@ export default function Header() {
 
             {menuOpen && (
               <div className="absolute right-0 mt-2 bg-black/50 rounded py-2 min-w-36 z-50">
-                <button className="w-full text-left px-6 py-2 text-sm text-white hover:bg-black transition duration-500 cursor-pointer">
+                <button
+                  onClick={() => router.push("/profile")}
+                  className="w-full text-left px-6 py-2 text-sm text-white hover:bg-black transition duration-500 cursor-pointer"
+                >
                   {user.name}
                 </button>
                 <button
