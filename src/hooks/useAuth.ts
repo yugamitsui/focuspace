@@ -16,34 +16,60 @@ export function useAuth() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
+  const fetchUserProfile = async (userId: string, email: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name, avatar_url")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Failed to fetch profile:", error.message);
+      return {
+        name: email,
+        avatar_url: "",
+        email,
+      };
+    }
+
+    return {
+      name: data.name || email,
+      avatar_url: data.avatar_url || "",
+      email,
+    };
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
       const isAuth = !!session;
       setIsLoggedIn(isAuth);
-      if (isAuth && session?.user) {
-        setUser({
-          name: session.user.user_metadata.name || session.user.email,
-          avatar_url: session.user.user_metadata.avatar_url,
-          email: session.user.email,
-        });
+
+      if (isAuth && session?.user?.id && session?.user?.email) {
+        const profile = await fetchUserProfile(
+          session.user.id,
+          session.user.email
+        );
+        setUser(profile);
       }
     };
 
     checkSession();
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         const isAuth = !!session;
         setIsLoggedIn(isAuth);
-        if (isAuth && session?.user) {
-          setUser({
-            name: session.user.user_metadata.name || session.user.email,
-            avatar_url: session.user.user_metadata.avatar_url,
-            email: session.user.email,
-          });
+
+        if (isAuth && session?.user?.id && session?.user?.email) {
+          const profile = await fetchUserProfile(
+            session.user.id,
+            session.user.email
+          );
+          setUser(profile);
           setAvatarError(false);
         } else {
           setUser(null);
