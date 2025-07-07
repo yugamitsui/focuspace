@@ -60,7 +60,7 @@ export default function Header() {
             {menuOpen && (
               <div className="absolute right-0 mt-2 bg-black/50 rounded py-2 min-w-36 z-50">
                 <button
-                  onClick={() => router.push("/profile")}
+                  onClick={() => router.push("/account")}
                   className="w-full text-left px-6 py-2 text-sm text-white hover:bg-black transition duration-500 cursor-pointer"
                 >
                   {user.name}
@@ -69,7 +69,7 @@ export default function Header() {
                   onClick={logout}
                   className="w-full text-left px-6 py-2 text-sm text-red-500 hover:bg-black transition duration-500 cursor-pointer"
                 >
-                  Log out
+                  Sign out
                 </button>
               </div>
             )}
