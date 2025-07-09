@@ -60,20 +60,20 @@ export function useAuth() {
     checkSession();
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const isAuth = !!session;
-        setIsLoggedIn(isAuth);
-
-        if (isAuth && session?.user?.id && session?.user?.email) {
-          const profile = await fetchUserProfile(
-            session.user.id,
-            session.user.email
-          );
-          setUser(profile);
-          setAvatarError(false);
-        } else {
-          setUser(null);
-        }
+      (_event, session) => {
+        setTimeout(() => {
+          if (session?.user?.id && session?.user?.email) {
+            fetchUserProfile(session.user.id, session.user.email).then(
+              (profile) => {
+                setUser(profile);
+                setAvatarError(false);
+              }
+            );
+          } else {
+            setUser(null);
+          }
+          setIsLoggedIn(!!session);
+        }, 0);
       }
     );
 

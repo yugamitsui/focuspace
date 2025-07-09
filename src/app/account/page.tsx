@@ -118,38 +118,31 @@ export default function AccountPage() {
   };
 
   const updateEmail = async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const user = sessionData.session?.user;
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user;
     if (!user || !profile) return;
 
     if (!(linkedProviders.length === 1 && linkedProviders[0] === "email")) {
       toast.error(
-        "You can't change your email while a social provider is linked."
+        "You can't change your email while a social provider is connected."
       );
       return;
     }
 
+    const { error } = await supabase.auth.updateUser({
+      email: profile.email,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Confirmation email sent! Please check your inbox.");
+
     setOriginalProfile((prev) =>
       prev ? { ...prev, email: profile.email } : prev
     );
-
-    const toastId = toast.success(
-      "Confirmation email sent! Please check your inbox."
-    );
-
-    supabase.auth
-      .updateUser({ email: profile.email })
-      .then(({ error }) => {
-        if (error) {
-          toast.error(`Failed to update email: ${error.message}`, {
-            id: toastId,
-          });
-          return;
-        }
-      })
-      .catch((err) => {
-        toast.error(`Unexpected error: ${err.message}`, { id: toastId });
-      });
   };
 
   const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +176,7 @@ export default function AccountPage() {
     const { error } = await supabase.auth.resetPasswordForEmail(
       profile!.email,
       {
-        redirectTo: `${origin}/reset`,
+        redirectTo: `${origin}/reset-password`,
       }
     );
     if (error) {
