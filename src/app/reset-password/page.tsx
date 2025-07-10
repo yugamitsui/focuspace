@@ -45,7 +45,7 @@ export default function PasswordResetPage() {
         <input
           type="password"
           placeholder="New password"
-          className="w-full rounded bg-white/10 px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
+          className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -53,7 +53,7 @@ export default function PasswordResetPage() {
         <input
           type="password"
           placeholder="Confirm password"
-          className="w-full rounded bg-white/10 px-4 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
+          className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
         />
@@ -61,7 +61,7 @@ export default function PasswordResetPage() {
         <button
           disabled={disabled}
           onClick={handleSave}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded disabled:opacity-50"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Save new password
         </button>

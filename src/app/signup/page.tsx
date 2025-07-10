@@ -8,6 +8,7 @@ import {
   GithubLogoIcon,
   GoogleLogoIcon,
 } from "@phosphor-icons/react";
+import toast from "react-hot-toast";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,9 +18,9 @@ export default function SignupPage() {
   const handleSignup = async () => {
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
-      alert(error.message);
+      toast.error(error.message);
     } else {
-      alert("Check your email to confirm signup.");
+      toast.success("Check your email to confirm signup.");
       router.push("/signin");
     }
   };
@@ -28,7 +29,7 @@ export default function SignupPage() {
     provider: "google" | "github" | "discord"
   ) => {
     const { error } = await supabase.auth.signInWithOAuth({ provider });
-    if (error) alert(error.message);
+    if (error) toast.error(error.message);
   };
 
   return (

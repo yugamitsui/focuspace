@@ -301,7 +301,7 @@ export default function AccountPage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-full"
+              className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-full cursor-pointer"
             >
               <UploadSimpleIcon size={20} />
             </button>
@@ -327,7 +327,7 @@ export default function AccountPage() {
             <button
               disabled={!isModified("name")}
               onClick={updateName}
-              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded disabled:opacity-50"
+              className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save
             </button>
@@ -345,7 +345,7 @@ export default function AccountPage() {
             <button
               disabled={!isModified("email")}
               onClick={updateEmail}
-              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded disabled:opacity-50"
+              className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save
             </button>
@@ -355,7 +355,7 @@ export default function AccountPage() {
         {/* Password reset */}
         <button
           onClick={handlePasswordReset}
-          className="text-sm text-blue-500 hover:underline self-start"
+          className="self-start text-sm text-blue-500 cursor-pointer hover:underline"
         >
           Send password-reset email
         </button>
@@ -369,14 +369,14 @@ export default function AccountPage() {
               {linkedProviders.includes(provider) ? (
                 <button
                   onClick={() => handleProviderUnlink(provider)}
-                  className="text-sm text-green-500 hover:underline"
+                  className="text-sm text-green-500 cursor-pointer hover:underline"
                 >
                   Connected
                 </button>
               ) : (
                 <button
                   onClick={() => handleProviderLink(provider)}
-                  className="text-sm text-blue-500 hover:underline"
+                  className="text-sm text-blue-500 cursor-pointer hover:underline"
                 >
                   Disconnected
                 </button>
@@ -389,13 +389,13 @@ export default function AccountPage() {
         <div className="space-y-4">
           <button
             onClick={handleLogout}
-            className="w-full bg-white/10 hover:bg-white/8 py-3 rounded flex items-center justify-center gap-2"
+            className="w-full bg-white/10 hover:bg-white/8 py-3 rounded flex items-center justify-center gap-2 cursor-pointer"
           >
             <SignOutIcon size={24} /> Sign out
           </button>
           <button
             onClick={handleDelete}
-            className="w-full bg-red-600 hover:bg-red-700 py-3 rounded flex items-center justify-center gap-2"
+            className="w-full bg-red-600 hover:bg-red-700 py-3 rounded flex items-center justify-center gap-2 cursor-pointer"
           >
             <TrashIcon size={24} /> Delete account
           </button>
