@@ -1,22 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import {
-  DiscordLogoIcon,
-  GithubLogoIcon,
-  GoogleLogoIcon,
-} from "@phosphor-icons/react";
+import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import {
+  GoogleLogoIcon,
+  GithubLogoIcon,
+  DiscordLogoIcon,
+} from "@phosphor-icons/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const signupSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, { message: "Email is required" })
+      .email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(1, { message: "Password is required" })
+      .min(8, { message: "Password must be at least 8 characters long" })
+      .regex(/[a-z]/, {
+        message: "Password must contain a lowercase letter (a-z)",
+      })
+      .regex(/[A-Z]/, {
+        message: "Password must contain an uppercase letter (A-Z)",
+      })
+      .regex(/[0-9]/, { message: "Password must contain a number (0-9)" })
+      .regex(/[^A-Za-z0-9]/, {
+        message: "Password must contain a symbol (e.g. !@#$%)",
+      }),
+  })
+  .required();
+
+type SignupFormData = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+  });
+
+  const handleSignup = async (data: SignupFormData) => {
+    const { error } = await supabase.auth.signUp(data);
     if (error) {
       toast.error(error.message);
     } else {
@@ -50,28 +83,46 @@ export default function SignupPage() {
           </p>
         </div>
 
-        <div className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
-          />
+        <form
+          onSubmit={handleSubmit(handleSignup)}
+          noValidate
+          className="space-y-4 text-left"
+        >
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-2">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              {...register("password")}
+              className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-2">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
           <button
-            onClick={handleSignup}
+            type="submit"
             className="w-full px-6 py-3 bg-white text-black rounded-full font-semibold hover:opacity-90 transition duration-500 cursor-pointer"
           >
             Sign up
           </button>
-        </div>
+        </form>
 
         <div className="flex items-center gap-2">
           <div className="flex-1 border-t border-white/75" />
