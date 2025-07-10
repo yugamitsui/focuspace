@@ -10,32 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-const signupSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, { message: "Email is required" })
-      .email({ message: "Invalid email address" }),
-    password: z
-      .string()
-      .min(1, { message: "Password is required" })
-      .min(8, { message: "Password must be at least 8 characters long" })
-      .regex(/[a-z]/, {
-        message: "Password must contain a lowercase letter (a-z)",
-      })
-      .regex(/[A-Z]/, {
-        message: "Password must contain an uppercase letter (A-Z)",
-      })
-      .regex(/[0-9]/, { message: "Password must contain a number (0-9)" })
-      .regex(/[^A-Za-z0-9]/, {
-        message: "Password must contain a symbol (e.g. !@#$%)",
-      }),
-  })
-  .required();
-
-type SignupFormData = z.infer<typeof signupSchema>;
+import { signupSchema, SignupFormData } from "@/schemas/auth";
 
 export default function SignupPage() {
   const router = useRouter();

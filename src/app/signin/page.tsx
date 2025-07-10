@@ -1,25 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import {
-  DiscordLogoIcon,
-  GithubLogoIcon,
-  GoogleLogoIcon,
-} from "@phosphor-icons/react";
+import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import {
+  GoogleLogoIcon,
+  GithubLogoIcon,
+  DiscordLogoIcon,
+} from "@phosphor-icons/react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { authBaseSchema, AuthBaseFormData } from "@/schemas/auth";
 
 export default function SigninPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSignin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AuthBaseFormData>({
+    resolver: zodResolver(authBaseSchema),
+  });
+
+  const handleSignin = async (data: AuthBaseFormData) => {
+    const { error } = await supabase.auth.signInWithPassword(data);
     if (error) {
       toast.error(error.message);
     } else {
@@ -52,28 +57,46 @@ export default function SigninPage() {
           </p>
         </div>
 
-        <div className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
-          />
+        <form
+          onSubmit={handleSubmit(handleSignin)}
+          noValidate
+          className="space-y-4 text-left"
+        >
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-2">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              {...register("password")}
+              className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-2">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
           <button
-            onClick={handleSignin}
+            type="submit"
             className="w-full px-6 py-3 bg-white text-black rounded-full font-semibold hover:opacity-90 transition duration-500 cursor-pointer"
           >
             Sign in
           </button>
-        </div>
+        </form>
 
         <div className="flex items-center gap-2">
           <div className="flex-1 border-t border-white/75" />
