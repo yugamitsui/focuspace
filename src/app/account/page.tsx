@@ -31,34 +31,72 @@ export default function AccountPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      const session = data.session;
-      if (!session) return router.push("/signin");
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
 
-      const user = session.user;
-      const { data: profileData, error } = await supabase
+      if (!user) {
+        router.push("/signin");
+        return;
+      }
+
+      const currentEmail = user.email ?? "";
+      let updatedProviders = user.app_metadata?.providers || [];
+
+      const shouldCheckIdentity = localStorage.getItem("should_check_identity");
+
+      if (shouldCheckIdentity) {
+        const identities = user.identities;
+
+        if (identities && identities.length > 1) {
+          const mismatch = identities.some(
+            (id) => id.identity_data?.email !== currentEmail
+          );
+
+          if (mismatch) {
+            toast.error(
+              "You can only connect accounts with the same email address."
+            );
+
+            const wrongIdentity = identities.find(
+              (id) => id.identity_data?.email !== currentEmail
+            );
+
+            if (wrongIdentity) {
+              await supabase.auth.unlinkIdentity(wrongIdentity);
+
+              const { data: refreshedUser } = await supabase.auth.getUser();
+              updatedProviders =
+                refreshedUser?.user?.app_metadata?.providers || [];
+            }
+          } else {
+            toast.success("Account connected successfully.");
+          }
+        }
+
+        localStorage.removeItem("should_check_identity");
+      }
+
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("name, avatar_url")
         .eq("id", user.id)
         .single();
 
-      if (error) {
-        console.error("Failed to load profile:", error.message);
+      if (profileError) {
+        console.error("Failed to load profile:", profileError.message);
         return;
       }
 
-      const { data: userData } = await supabase.auth.getUser();
-
       const loadedProfile = {
         name: profileData?.name ?? "",
-        email: user.email ?? "",
+        email: currentEmail,
         avatar_url: profileData?.avatar_url ?? "",
-        provider: user.app_metadata.provider ?? "email",
+        provider: user.app_metadata?.provider ?? "email",
       };
 
       setProfile(loadedProfile);
       setOriginalProfile(loadedProfile);
-      setLinkedProviders(userData?.user?.app_metadata.providers || []);
+      setLinkedProviders(updatedProviders);
       setLoading(false);
     })();
   }, [router]);
@@ -107,7 +145,7 @@ export default function AccountPage() {
       .eq("id", user.id);
 
     if (error) {
-      toast.error("Failed to update name: " + error.message);
+      toast.error(error.message);
       return;
     }
 
@@ -212,7 +250,7 @@ export default function AccountPage() {
       });
 
       if (error) {
-        toast.error("Failed to delete: " + error.message);
+        toast.error(error.message);
         return;
       }
 
@@ -225,18 +263,25 @@ export default function AccountPage() {
     }
   };
 
-  const handleProviderLink = (provider: SocialProvider) => {
+  const handleProviderLink = async (provider: SocialProvider) => {
+    localStorage.setItem("should_check_identity", "true");
+
     const origin = window.location.origin;
-    supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.linkIdentity({
       provider,
-      options: {
-        redirectTo: `${origin}/account`,
-      },
+      options: { redirectTo: `${origin}/account` },
     });
+
+    if (error) {
+      localStorage.removeItem("should_check_identity");
+      toast.error(error.message);
+    }
   };
 
   const handleProviderUnlink = async (provider: SocialProvider) => {
-    const confirmed = window.confirm(`Disconnect from ${provider}?`);
+    const confirmed = window.confirm(
+      `Disconnect from ${provider.charAt(0).toUpperCase() + provider.slice(1)}?`
+    );
     if (!confirmed) return;
 
     const { data: identitiesData, error: identitiesError } =
@@ -258,11 +303,15 @@ export default function AccountPage() {
 
     const { error } = await supabase.auth.unlinkIdentity(identity);
     if (error) {
-      toast.error("Failed to disconnect: " + error.message);
+      toast.error(error.message);
       return;
     }
 
-    toast.success(`${provider} disconnected successfully.`);
+    toast.success(
+      `${
+        provider.charAt(0).toUpperCase() + provider.slice(1)
+      } disconnected successfully.`
+    );
 
     const { data: userData } = await supabase.auth.getUser();
     if (userData?.user) {
