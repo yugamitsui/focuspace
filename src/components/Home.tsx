@@ -2,21 +2,21 @@
 
 import { useState } from "react";
 import Timer from "@/components/Timer";
-import WeatherSelector, { WeatherType } from "./selectors/WeatherSelector";
+import EffectSelector, { EffectType } from "./selectors/EffectSelector";
 import { backgroundImages } from "@/components/BackgroundCarousel";
-import WeatherEffect from "@/components/WeatherEffect";
+import Effect from "@/components/Effect";
 import NavButton from "@/components/buttons/NavButton";
 
 export default function Home() {
   const [bgIndex, setBgIndex] = useState(0);
-  const [weather, setWeather] = useState<WeatherType>("clear");
+  const [effect, setEffect] = useState<EffectType>("sun");
 
   return (
     <main
       className="relative flex flex-col items-center justify-center gap-16 min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${backgroundImages[bgIndex]})` }}
     >
-      <WeatherEffect weather={weather} />
+      <Effect effect={effect} />
       <div className="absolute inset-0 bg-black/25 z-0" />
 
       <NavButton
@@ -35,7 +35,7 @@ export default function Home() {
       />
 
       <div className="absolute bottom-4 right-4 z-30">
-        <WeatherSelector onChange={setWeather} />
+        <EffectSelector onChange={setEffect} />
       </div>
 
       <div className="relative z-10 flex flex-col items-center gap-16">
