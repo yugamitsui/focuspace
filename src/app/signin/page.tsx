@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authBaseSchema, AuthBaseFormData } from "@/schemas/auth";
+import { signinSchema, SigninFormData } from "@/schemas/auth";
 
 export default function SigninPage() {
   const router = useRouter();
@@ -19,11 +19,11 @@ export default function SigninPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AuthBaseFormData>({
-    resolver: zodResolver(authBaseSchema),
+  } = useForm<SigninFormData>({
+    resolver: zodResolver(signinSchema),
   });
 
-  const handleSignin = async (data: AuthBaseFormData) => {
+  const handleSignin = async (data: SigninFormData) => {
     const { error } = await supabase.auth.signInWithPassword(data);
     if (error) {
       toast.error(error.message);
