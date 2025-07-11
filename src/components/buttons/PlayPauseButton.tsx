@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Pause } from "phosphor-react";
+import { PauseIcon, PlayIcon } from "@phosphor-icons/react";
 
 type PlayPauseButtonProps = {
   isRunning: boolean;
@@ -17,7 +17,7 @@ export default function PlayPauseButton({
       className="p-2 hover:text-white transition-colors duration-500 cursor-pointer"
       aria-label={isRunning ? "Pause Timer" : "Start Timer"}
     >
-      {isRunning ? <Pause size={32} /> : <Play size={32} />}
+      {isRunning ? <PauseIcon size={32} /> : <PlayIcon size={32} />}
     </button>
   );
 }

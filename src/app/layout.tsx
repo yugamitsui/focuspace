@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "@/components/Header";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-  title: "Lofi Timer",
-  description:
-    "A minimalist Pomodoro timer with lo-fi vibes to help you focus and relax.",
+  title: "Focuspace",
+  description: "A minimal Pomodoro timer for focused work.",
 };
 
 export default function RootLayout({
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen text-white/75 bg-black text-base antialiased font-sans tabular-nums">
+        <Header />
         {children}
+        <Toaster />
       </body>
     </html>
   );

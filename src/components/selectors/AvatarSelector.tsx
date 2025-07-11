@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { CaretLeft, CaretRight } from "phosphor-react";
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 const avatars = [
   "/images/avatar_01.png",
@@ -30,7 +30,7 @@ export default function AvatarSelector() {
         onClick={prevAvatar}
         className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500"
       >
-        <CaretLeft size={32} weight="bold" />
+        <CaretLeftIcon size={32} weight="bold" />
       </button>
 
       <Image
@@ -45,7 +45,7 @@ export default function AvatarSelector() {
         onClick={nextAvatar}
         className="p-2 rounded-full bg-black/50 hover:bg-black hover:text-white opacity-0 group-hover:opacity-100 transition duration-500"
       >
-        <CaretRight size={32} weight="bold" />
+        <CaretRightIcon size={32} weight="bold" />
       </button>
     </div>
   );

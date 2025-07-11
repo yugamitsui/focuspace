@@ -1,5 +1,5 @@
 {
-  "name": "lofi-app",
+  "name": "focuspace",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,17 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "@supabase/supabase-js": "^2.49.9",
     "@tailwindcss/postcss": "^4.1.7",
     "howler": "^2.2.4",
     "next": "15.1.8",
-    "phosphor-react": "^1.4.1",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.7"
+    "react-hook-form": "^7.60.0",
+    "react-hot-toast": "^2.5.2",
+    "tailwindcss": "^4.1.7",
+    "zod": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@svgr/webpack": "^8.1.0",
     "@types/howler": "^2.2.12",
     "@types/node": "^20",
     "@types/react": "^19.1.6",
