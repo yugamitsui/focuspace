@@ -51,7 +51,7 @@ export default function BackgroundSelector({
       </button>
 
       {open && (
-        <div className="fixed right-4 bottom-20 w-136 bg-black/50 rounded p-4 grid grid-cols-3 gap-4 z-50">
+        <div className="fixed right-4 bottom-18 w-136 bg-black/50 rounded p-4 grid grid-cols-3 gap-4 z-50">
           {backgroundImages.map((bg) => (
             <button
               key={bg.id}

@@ -333,14 +333,14 @@ export default function AccountPage() {
 
         {/* Avatar */}
         <div className="flex items-center gap-6">
-          <div className="relative w-24 h-24">
+          <div className="relative">
             {profile.avatar_url ? (
               <Image
                 src={profile.avatar_url}
                 alt="avatar"
                 width={96}
                 height={96}
-                className="rounded-full object-cover"
+                className="w-24 h-24 rounded-full object-cover"
               />
             ) : (
               <div className="w-24 h-24 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-5xl">
