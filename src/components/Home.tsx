@@ -2,39 +2,24 @@
 
 import { useState } from "react";
 import Timer from "@/components/Timer";
-import EffectSelector, { EffectType } from "./selectors/EffectSelector";
-import { backgroundImages } from "@/components/BackgroundCarousel";
 import Effect from "@/components/Effect";
-import NavButton from "@/components/buttons/NavButton";
+import EffectSelector, { EffectType } from "./selectors/EffectSelector";
+import BackgroundSelector from "./selectors/BackgroundSelector";
 
 export default function Home() {
-  const [bgIndex, setBgIndex] = useState(0);
+  const [background, setBackground] = useState("/images/background_01.png");
   const [effect, setEffect] = useState<EffectType>("sun");
 
   return (
     <main
       className="relative flex flex-col items-center justify-center gap-16 min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundImages[bgIndex]})` }}
+      style={{ backgroundImage: `url(${background})` }}
     >
       <Effect effect={effect} />
       <div className="absolute inset-0 bg-black/25 z-0" />
 
-      <NavButton
-        direction="left"
-        onClick={() =>
-          setBgIndex((prev) =>
-            prev === 0 ? backgroundImages.length - 1 : prev - 1
-          )
-        }
-      />
-      <NavButton
-        direction="right"
-        onClick={() =>
-          setBgIndex((prev) => (prev + 1) % backgroundImages.length)
-        }
-      />
-
-      <div className="absolute bottom-4 right-4 z-30">
+      <div className="absolute bottom-4 right-4 z-30 flex gap-2">
+        <BackgroundSelector current={background} onSelect={setBackground} />
         <EffectSelector onChange={setEffect} />
       </div>
 
