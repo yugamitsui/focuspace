@@ -5,6 +5,7 @@ import Timer from "@/components/Timer";
 import Effect from "@/components/Effect";
 import EffectSelector, { EffectType } from "./selectors/EffectSelector";
 import BackgroundSelector from "./selectors/BackgroundSelector";
+import FullscreenButton from "./buttons/FullscreenButton";
 
 export default function Home() {
   const [background, setBackground] = useState("/images/background_01.png");
@@ -21,6 +22,7 @@ export default function Home() {
       <div className="absolute bottom-4 right-4 z-30 flex gap-2">
         <BackgroundSelector current={background} onSelect={setBackground} />
         <EffectSelector onChange={setEffect} />
+        <FullscreenButton />
       </div>
 
       <div className="relative z-10 flex flex-col items-center gap-16">
