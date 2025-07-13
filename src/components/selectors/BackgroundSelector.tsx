@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ImageSquareIcon } from "@phosphor-icons/react";
-import { backgroundImages } from "../BackgroundImages";
+import { backgroundImages } from "@/constants/BackgroundImages";
 
 export default function BackgroundSelector({
   onSelect,
