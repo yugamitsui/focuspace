@@ -10,7 +10,7 @@ export default function BgmSelector({
   onSelect,
 }: {
   current: string;
-  onSelect: (title: string) => void;
+  onSelect: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,10 +44,10 @@ export default function BgmSelector({
             <button
               key={track.id}
               onClick={() => {
-                onSelect(track.title);
+                onSelect(track.id);
               }}
               className={`group ${
-                track.title === current ? "" : "cursor-pointer"
+                track.id === current ? "" : "cursor-pointer"
               }`}
             >
               <Image
@@ -56,16 +56,14 @@ export default function BgmSelector({
                 width={128}
                 height={128}
                 className={`rounded-full transition duration-500 ${
-                  track.title === current
+                  track.id === current
                     ? "ring-2 ring-white"
                     : "group-hover:ring-2 group-hover:ring-white/75"
                 }`}
               />
               <span
                 className={`block mt-2 text-xs text-center transition-color duration-500 ${
-                  track.title === current
-                    ? "text-white"
-                    : "group-hover:text-white"
+                  track.id === current ? "text-white" : "group-hover:text-white"
                 }`}
               >
                 {track.title}

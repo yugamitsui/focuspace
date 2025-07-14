@@ -16,9 +16,8 @@ export default function Home() {
     "/images/backgrounds/background_01.png"
   );
   const [effect, setEffect] = useState<EffectType>("sun");
-  const [trackTitle, setTrackTitle] = useState(bgmTracks[4].title);
-
-  const selected = bgmTracks.find((t) => t.title === trackTitle);
+  const [trackId, setTrackId] = useState(bgmTracks[4].id);
+  const selected = bgmTracks.find((t) => t.id === trackId);
 
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
     useTimer("25-5", () => selected?.bgm ?? []);
@@ -33,11 +32,11 @@ export default function Home() {
 
       <div className="absolute bottom-4 right-4 z-30 flex gap-2">
         <BgmSelector
-          current={trackTitle}
-          onSelect={(title) => {
-            setTrackTitle(title);
+          current={trackId}
+          onSelect={(id) => {
+            setTrackId(id);
             if (isRunning) {
-              const selected = bgmTracks.find((t) => t.title === title);
+              const selected = bgmTracks.find((t) => t.id === id);
               if (selected) {
                 stopBgm();
                 playBgm(selected.bgm);
