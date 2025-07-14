@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { playBgmPlaylist, stopBgm } from "@/lib/bgmPlayer";
+import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import { getDurations, Mode } from "@/lib/durations";
 import { playTimerEndSe } from "@/lib/sePlayer";
 
-export function useTimer(initialMode: Mode = "25-5", trackList: string[] = []) {
+export function useTimer(
+  initialMode: Mode = "25-5",
+  getTrackList: () => string[]
+) {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [timeLeft, setTimeLeft] = useState(getDurations(initialMode).workTime);
   const [isRunning, setIsRunning] = useState(false);
@@ -35,7 +38,8 @@ export function useTimer(initialMode: Mode = "25-5", trackList: string[] = []) {
         clearInterval(timerRef.current!);
         stopBgm();
       } else {
-        playBgmPlaylist(trackList);
+        stopBgm();
+        playBgm(getTrackList());
       }
       return !prev;
     });

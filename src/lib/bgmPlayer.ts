@@ -1,38 +1,35 @@
 import { Howl } from "howler";
 
-let currentTrackIndex = 0;
-let currentPlaylist: string[] = [];
-let currentHowl: Howl | null = null;
+let currentIndex = 0;
+let currentTracks: string[] = [];
+let sound: Howl | null = null;
 
-export const playBgmPlaylist = (playlist: string[]) => {
-  stopBgm();
-  currentPlaylist = playlist;
-  currentTrackIndex = 0;
-  playCurrentTrack();
+export const playBgm = (tracks: string[] = []) => {
+  if (tracks.length === 0) return;
+  currentTracks = tracks;
+  currentIndex = 0;
+  playCurrent();
 };
 
-const playCurrentTrack = () => {
-  if (currentTrackIndex >= currentPlaylist.length) {
-    currentTrackIndex = 0;
-  }
+const playCurrent = () => {
+  if (!currentTracks[currentIndex]) return;
 
-  const track = currentPlaylist[currentTrackIndex];
-  currentHowl = new Howl({
-    src: [track],
+  sound = new Howl({
+    src: [currentTracks[currentIndex]],
     volume: 0.5,
+    loop: false,
     onend: () => {
-      currentTrackIndex++;
-      playCurrentTrack();
+      currentIndex = (currentIndex + 1) % currentTracks.length;
+      playCurrent();
     },
   });
 
-  currentHowl.play();
+  sound.play();
 };
 
 export const stopBgm = () => {
-  if (currentHowl) {
-    currentHowl.stop();
-    currentHowl.unload();
-    currentHowl = null;
-  }
+  sound?.stop();
+  sound = null;
+  currentTracks = [];
+  currentIndex = 0;
 };

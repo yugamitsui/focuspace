@@ -9,18 +9,19 @@ import FullscreenButton from "./buttons/FullscreenButton";
 import BgmSelector from "./selectors/BgmSelector";
 import { bgmTracks } from "@/constants/bgmTracks";
 import { useTimer } from "@/hooks/useTimer";
+import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 
 export default function Home() {
   const [background, setBackground] = useState(
     "/images/backgrounds/background_01.png"
   );
   const [effect, setEffect] = useState<EffectType>("sun");
-  const [trackTitle, setTrackTitle] = useState(bgmTracks[0].title);
+  const [trackTitle, setTrackTitle] = useState(bgmTracks[4].title);
 
   const selected = bgmTracks.find((t) => t.title === trackTitle);
 
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer("25-5", selected?.bgm ?? []);
+    useTimer("25-5", () => selected?.bgm ?? []);
 
   return (
     <main
@@ -31,7 +32,19 @@ export default function Home() {
       <div className="absolute inset-0 bg-black/25 z-0" />
 
       <div className="absolute bottom-4 right-4 z-30 flex gap-2">
-        <BgmSelector current={trackTitle} onSelect={setTrackTitle} />
+        <BgmSelector
+          current={trackTitle}
+          onSelect={(title) => {
+            setTrackTitle(title);
+            if (isRunning) {
+              const selected = bgmTracks.find((t) => t.title === title);
+              if (selected) {
+                stopBgm();
+                playBgm(selected.bgm);
+              }
+            }
+          }}
+        />
         <BackgroundSelector current={background} onSelect={setBackground} />
         <EffectSelector onChange={setEffect} />
         <FullscreenButton />
