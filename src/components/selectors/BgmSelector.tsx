@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { MusicNotesSimpleIcon } from "@phosphor-icons/react";
+import { useUser } from "@supabase/auth-helpers-react";
 import { bgmTracks } from "@/constants/bgmTracks";
+import { updateBackgroundMusic } from "@/lib/spaceSettings";
 
 export default function BgmSelector({
   current,
@@ -14,6 +16,7 @@ export default function BgmSelector({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const user = useUser();
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -23,6 +26,17 @@ export default function BgmSelector({
     if (open) document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
+
+  const handleSelect = async (trackId: string) => {
+    onSelect(trackId);
+    if (user?.id) {
+      try {
+        await updateBackgroundMusic(user.id, trackId);
+      } catch (error) {
+        console.error("Failed to update background music:", error);
+      }
+    }
+  };
 
   return (
     <div className="relative" ref={ref}>
@@ -43,9 +57,7 @@ export default function BgmSelector({
           {bgmTracks.map((track) => (
             <button
               key={track.id}
-              onClick={() => {
-                onSelect(track.id);
-              }}
+              onClick={() => handleSelect(track.id)}
               className={`group ${
                 track.id === current ? "" : "cursor-pointer"
               }`}

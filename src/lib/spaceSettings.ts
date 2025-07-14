@@ -1,0 +1,29 @@
+import { supabase } from "./supabaseClient";
+
+export const updateBackgroundMusic = async (
+  userId: string,
+  musicId: string
+) => {
+  const { error } = await supabase
+    .from("space_settings")
+    .update({ background_music_id: musicId })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getBackgroundMusic = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("space_settings")
+    .select("background_music_id")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.background_music_id as string | null;
+};

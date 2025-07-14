@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useUser } from "@supabase/auth-helpers-react";
 import Timer from "@/components/Timer";
 import Effect from "@/components/Effect";
 import EffectSelector, { EffectType } from "./selectors/EffectSelector";
@@ -10,17 +11,35 @@ import BgmSelector from "./selectors/BgmSelector";
 import { bgmTracks } from "@/constants/bgmTracks";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
+import { getBackgroundMusic } from "@/lib/spaceSettings";
 
 export default function Home() {
+  const user = useUser();
+
   const [background, setBackground] = useState(
     "/images/backgrounds/background_01.png"
   );
   const [effect, setEffect] = useState<EffectType>("sun");
-  const [trackId, setTrackId] = useState(bgmTracks[4].id);
-  const selected = bgmTracks.find((t) => t.id === trackId);
+  const [trackId, setTrackId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchBgm = async () => {
+      if (!user) return;
+      try {
+        const musicId = await getBackgroundMusic(user.id);
+        if (musicId) setTrackId(musicId);
+      } catch (err) {
+        console.error("Failed to fetch background music:", err);
+      }
+    };
+
+    fetchBgm();
+  }, [user]);
+
+  const selected = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
 
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer("25-5", () => selected?.bgm ?? []);
+    useTimer("25-5", () => selected.bgm);
 
   return (
     <main
@@ -32,7 +51,7 @@ export default function Home() {
 
       <div className="absolute bottom-4 right-4 z-30 flex gap-2">
         <BgmSelector
-          current={trackId}
+          current={selected.id}
           onSelect={(id) => {
             setTrackId(id);
             if (isRunning) {
