@@ -1,17 +1,32 @@
 "use client";
 
-import { useTimer } from "@/hooks/useTimer";
 import { formatTime } from "@/lib/formatTime";
 import AudioVisualizer from "./AudioVisualizer";
 import MuteButton from "./buttons/MuteButton";
 import PlayPauseButton from "./buttons/PlayPauseButton";
 import ResetButton from "./buttons/ResetButton";
 import ModeSelector from "./selectors/ModeSelector";
+import { Mode } from "@/lib/durations";
 
-export default function Timer() {
-  const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer();
+type TimerProps = {
+  mode: Mode;
+  modes: Mode[];
+  timeLeft: number;
+  isRunning: boolean;
+  changeMode: (newMode: Mode) => void;
+  toggle: () => void;
+  reset: () => void;
+};
 
+export default function Timer({
+  mode,
+  modes,
+  timeLeft,
+  isRunning,
+  changeMode,
+  toggle,
+  reset,
+}: TimerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-16">
       <ModeSelector mode={mode} modes={modes} changeMode={changeMode} />
