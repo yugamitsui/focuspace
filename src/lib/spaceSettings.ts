@@ -27,3 +27,31 @@ export const getBackgroundMusic = async (userId: string) => {
 
   return data.background_music_id as string | null;
 };
+
+export const updateBackgroundImage = async (
+  userId: string,
+  imageUrl: string
+) => {
+  const { error } = await supabase
+    .from("space_settings")
+    .update({ background_image_url: imageUrl })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getBackgroundImage = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("space_settings")
+    .select("background_image_url")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.background_image_url ?? null;
+};

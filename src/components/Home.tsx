@@ -4,42 +4,44 @@ import { useEffect, useState } from "react";
 import { useUser } from "@supabase/auth-helpers-react";
 import Timer from "@/components/Timer";
 import Effect from "@/components/Effect";
-import EffectSelector, { EffectType } from "./selectors/EffectSelector";
-import BackgroundSelector from "./selectors/BackgroundSelector";
 import FullscreenButton from "./buttons/FullscreenButton";
+import BackgroundSelector from "./selectors/BackgroundSelector";
 import BgmSelector from "./selectors/BgmSelector";
+import EffectSelector, { EffectType } from "./selectors/EffectSelector";
 import { bgmTracks } from "@/constants/bgmTracks";
+import { backgroundImages } from "@/constants/BackgroundImages";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
-import { getBackgroundMusic } from "@/lib/spaceSettings";
+import { getBackgroundImage, getBackgroundMusic } from "@/lib/spaceSettings";
 
 export default function Home() {
   const user = useUser();
 
-  const [background, setBackground] = useState(
-    "/images/backgrounds/background_01.png"
-  );
-  const [effect, setEffect] = useState<EffectType>("sun");
   const [trackId, setTrackId] = useState<string | null>(null);
+  const selected = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
+
+  const [background, setBackground] = useState(backgroundImages[0].url);
+  const [effect, setEffect] = useState<EffectType>("sun");
+
+  const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
+    useTimer("25-5", () => selected.bgm);
 
   useEffect(() => {
-    const fetchBgm = async () => {
+    const fetchSpaceSettings = async () => {
       if (!user) return;
       try {
         const musicId = await getBackgroundMusic(user.id);
         if (musicId) setTrackId(musicId);
+
+        const bgUrl = await getBackgroundImage(user.id);
+        if (bgUrl) setBackground(bgUrl);
       } catch (err) {
-        console.error("Failed to fetch background music:", err);
+        console.error("Failed to fetch space settings:", err);
       }
     };
 
-    fetchBgm();
+    fetchSpaceSettings();
   }, [user]);
-
-  const selected = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
-
-  const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer("25-5", () => selected.bgm);
 
   return (
     <main
