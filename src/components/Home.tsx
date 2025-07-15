@@ -3,38 +3,51 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@supabase/auth-helpers-react";
 import Timer from "@/components/Timer";
-import Effect from "@/components/Effect";
 import FullscreenButton from "./buttons/FullscreenButton";
 import BackgroundSelector from "./selectors/BackgroundSelector";
 import BgmSelector from "./selectors/BgmSelector";
-import EffectSelector, { EffectType } from "./selectors/EffectSelector";
+import EffectSelector from "./selectors/EffectSelector";
 import { bgmTracks } from "@/constants/bgmTracks";
 import { backgroundImages } from "@/constants/BackgroundImages";
+import { visualEffects } from "@/constants/visualEffects";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
-import { getBackgroundImage, getBackgroundMusic } from "@/lib/spaceSettings";
+import {
+  getBackgroundImage,
+  getBackgroundMusic,
+  getVisualEffect,
+} from "@/lib/spaceSettings";
 
 export default function Home() {
   const user = useUser();
 
   const [trackId, setTrackId] = useState<string | null>(null);
-  const selected = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
-
   const [background, setBackground] = useState(backgroundImages[0].url);
-  const [effect, setEffect] = useState<EffectType>("sun");
+  const [visualEffectId, setVisualEffectId] = useState<string>(
+    visualEffects[0].id
+  );
+
+  const selectedTrack = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
+  const selectedEffect =
+    visualEffects.find((v) => v.id === visualEffectId)?.component ??
+    visualEffects[0].component;
 
   const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer("25-5", () => selected.bgm);
+    useTimer("25-5", () => selectedTrack.bgm);
 
   useEffect(() => {
     const fetchSpaceSettings = async () => {
       if (!user) return;
       try {
-        const musicId = await getBackgroundMusic(user.id);
-        if (musicId) setTrackId(musicId);
+        const [musicId, bgUrl, effectId] = await Promise.all([
+          getBackgroundMusic(user.id),
+          getBackgroundImage(user.id),
+          getVisualEffect(user.id),
+        ]);
 
-        const bgUrl = await getBackgroundImage(user.id);
+        if (musicId) setTrackId(musicId);
         if (bgUrl) setBackground(bgUrl);
+        if (effectId) setVisualEffectId(effectId);
       } catch (err) {
         console.error("Failed to fetch space settings:", err);
       }
@@ -48,12 +61,12 @@ export default function Home() {
       className="relative flex flex-col items-center justify-center gap-16 min-h-screen bg-cover bg-center"
       style={{ backgroundImage: `url(${background})` }}
     >
-      <Effect effect={effect} />
+      {selectedEffect}
       <div className="absolute inset-0 bg-black/25 z-0" />
 
       <div className="absolute bottom-4 right-4 z-30 flex gap-2">
         <BgmSelector
-          current={selected.id}
+          current={selectedTrack.id}
           onSelect={(id) => {
             setTrackId(id);
             if (isRunning) {
@@ -66,7 +79,10 @@ export default function Home() {
           }}
         />
         <BackgroundSelector current={background} onSelect={setBackground} />
-        <EffectSelector onChange={setEffect} />
+        <EffectSelector
+          current={visualEffectId}
+          onSelect={(id) => setVisualEffectId(id)}
+        />
         <FullscreenButton />
       </div>
 
