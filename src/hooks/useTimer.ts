@@ -1,17 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
-import { getDurations, Mode } from "@/lib/durations";
 import { playTimerEndSe } from "@/lib/sePlayer";
+import { timerDurations } from "@/constants/timerDurations";
 
-export function useTimer(
-  initialMode: Mode = "25-5",
-  getTrackList: () => string[]
-) {
-  const [mode, setMode] = useState<Mode>(initialMode);
-  const [timeLeft, setTimeLeft] = useState(getDurations(initialMode).workTime);
+export function useTimer(durationId: string, getTrackList: () => string[]) {
+  const [timeLeft, setTimeLeft] = useState(timerDurations[0].focusTime);
   const [isRunning, setIsRunning] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
+  const [isResting, setIsResting] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const duration = useMemo(() => {
+    return timerDurations.find((d) => d.id === durationId) ?? timerDurations[0];
+  }, [durationId]);
+
+  useEffect(() => {
+    clearInterval(timerRef.current!);
+    stopBgm();
+    setIsRunning(false);
+    setIsResting(false);
+    setTimeLeft(duration.focusTime);
+  }, [duration]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -21,16 +29,15 @@ export function useTimer(
         if (prev <= 1) {
           clearInterval(timerRef.current!);
           playTimerEndSe();
-          setIsBreak(!isBreak);
-          const { workTime, breakTime } = getDurations(mode);
-          return isBreak ? workTime : breakTime;
+          setIsResting(!isResting);
+          return isResting ? duration.focusTime : duration.restTime;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timerRef.current!);
-  }, [isRunning, isBreak, mode]);
+  }, [isRunning, isResting, duration]);
 
   const toggle = () => {
     setIsRunning((prev) => {
@@ -49,21 +56,13 @@ export function useTimer(
     setIsRunning(false);
     clearInterval(timerRef.current!);
     stopBgm();
-    const { workTime, breakTime } = getDurations(mode);
-    setTimeLeft(isBreak ? breakTime : workTime);
+    setTimeLeft(isResting ? duration.restTime : duration.focusTime);
   };
 
-  const changeMode = (newMode: Mode) => {
-    if (newMode === mode) return;
-    setIsRunning(false);
-    clearInterval(timerRef.current!);
-    stopBgm();
-    setMode(newMode);
-    setIsBreak(false);
-    setTimeLeft(getDurations(newMode).workTime);
+  return {
+    timeLeft,
+    isRunning,
+    toggle,
+    reset,
   };
-
-  const modes: Mode[] = ["25-5", "52-17", "112-26"];
-
-  return { mode, timeLeft, isRunning, changeMode, toggle, reset, modes };
 }

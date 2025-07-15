@@ -8,14 +8,16 @@ import BackgroundSelector from "./selectors/BackgroundSelector";
 import BgmSelector from "./selectors/BgmSelector";
 import EffectSelector from "./selectors/EffectSelector";
 import { bgmTracks } from "@/constants/bgmTracks";
-import { backgroundImages } from "@/constants/BackgroundImages";
+import { backgroundImages } from "@/constants/backgroundImages";
 import { visualEffects } from "@/constants/visualEffects";
+import { timerDurations } from "@/constants/timerDurations";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import {
   getBackgroundImage,
   getBackgroundMusic,
   getVisualEffect,
+  getTimerDuration,
 } from "@/lib/spaceSettings";
 
 export default function Home() {
@@ -23,8 +25,9 @@ export default function Home() {
 
   const [trackId, setTrackId] = useState<string | null>(null);
   const [background, setBackground] = useState(backgroundImages[0].url);
-  const [visualEffectId, setVisualEffectId] = useState<string>(
-    visualEffects[0].id
+  const [visualEffectId, setVisualEffectId] = useState(visualEffects[0].id);
+  const [selectedDurationId, setSelectedDurationId] = useState(
+    timerDurations[0].id
   );
 
   const selectedTrack = bgmTracks.find((t) => t.id === trackId) ?? bgmTracks[4];
@@ -32,22 +35,26 @@ export default function Home() {
     visualEffects.find((v) => v.id === visualEffectId)?.component ??
     visualEffects[0].component;
 
-  const { mode, timeLeft, isRunning, changeMode, toggle, reset, modes } =
-    useTimer("25-5", () => selectedTrack.bgm);
+  const { timeLeft, isRunning, toggle, reset } = useTimer(
+    selectedDurationId,
+    () => selectedTrack.bgm
+  );
 
   useEffect(() => {
     const fetchSpaceSettings = async () => {
       if (!user) return;
       try {
-        const [musicId, bgUrl, effectId] = await Promise.all([
+        const [musicId, bgUrl, effectId, durationId] = await Promise.all([
           getBackgroundMusic(user.id),
           getBackgroundImage(user.id),
           getVisualEffect(user.id),
+          getTimerDuration(user.id),
         ]);
 
         if (musicId) setTrackId(musicId);
         if (bgUrl) setBackground(bgUrl);
         if (effectId) setVisualEffectId(effectId);
+        if (durationId) setSelectedDurationId(durationId);
       } catch (err) {
         console.error("Failed to fetch space settings:", err);
       }
@@ -88,13 +95,12 @@ export default function Home() {
 
       <div className="relative z-10 flex flex-col items-center gap-16">
         <Timer
-          mode={mode}
+          currentId={selectedDurationId}
+          onSelect={setSelectedDurationId}
           timeLeft={timeLeft}
           isRunning={isRunning}
-          changeMode={changeMode}
           toggle={toggle}
           reset={reset}
-          modes={modes}
         />
       </div>
     </main>

@@ -5,31 +5,28 @@ import AudioVisualizer from "./AudioVisualizer";
 import MuteButton from "./buttons/MuteButton";
 import PlayPauseButton from "./buttons/PlayPauseButton";
 import ResetButton from "./buttons/ResetButton";
-import ModeSelector from "./selectors/ModeSelector";
-import { Mode } from "@/lib/durations";
+import TimerDurationSelector from "./selectors/TimerDurationSelector";
 
 type TimerProps = {
-  mode: Mode;
-  modes: Mode[];
+  currentId: string;
   timeLeft: number;
   isRunning: boolean;
-  changeMode: (newMode: Mode) => void;
+  onSelect: (id: string) => void;
   toggle: () => void;
   reset: () => void;
 };
 
 export default function Timer({
-  mode,
-  modes,
+  currentId,
   timeLeft,
   isRunning,
-  changeMode,
+  onSelect,
   toggle,
   reset,
 }: TimerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-16">
-      <ModeSelector mode={mode} modes={modes} changeMode={changeMode} />
+      <TimerDurationSelector current={currentId} onSelect={onSelect} />
 
       <div className="text-white font-medium text-8xl">
         {formatTime(timeLeft)}

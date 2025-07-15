@@ -1,5 +1,33 @@
 import { supabase } from "./supabaseClient";
 
+export const updateTimerDuration = async (
+  userId: string,
+  durationId: string
+) => {
+  const { error } = await supabase
+    .from("space_settings")
+    .update({ timer_duration_id: durationId })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
+export const getTimerDuration = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("space_settings")
+    .select("timer_duration_id")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.timer_duration_id ?? null;
+};
+
 export const updateBackgroundMusic = async (
   userId: string,
   musicId: string
@@ -25,7 +53,7 @@ export const getBackgroundMusic = async (userId: string) => {
     throw new Error(error.message);
   }
 
-  return data.background_music_id as string | null;
+  return data?.background_music_id ?? null;
 };
 
 export const updateBackgroundImage = async (
