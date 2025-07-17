@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { visualEffects } from "@/constants/visualEffects";
 import { useUser } from "@supabase/auth-helpers-react";
-import { updateVisualEffect } from "@/lib/spaceSettings";
+import { updateVisualEffect } from "@/lib/supabase/spaceSettings";
 
 interface EffectSelectorProps {
   current: string;

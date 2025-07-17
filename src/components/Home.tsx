@@ -19,7 +19,7 @@ import {
   getBackgroundMusic,
   getVisualEffect,
   getTimerDuration,
-} from "@/lib/spaceSettings";
+} from "@/lib/supabase/spaceSettings";
 
 export default function Home() {
   const user = useUser();

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { MusicNotesSimpleIcon } from "@phosphor-icons/react";
 import { useUser } from "@supabase/auth-helpers-react";
 import { bgmTracks } from "@/constants/bgmTracks";
-import { updateBackgroundMusic } from "@/lib/spaceSettings";
+import { updateBackgroundMusic } from "@/lib/supabase/spaceSettings";
 
 export default function BgmSelector({
   current,

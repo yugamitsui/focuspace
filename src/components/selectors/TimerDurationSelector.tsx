@@ -2,7 +2,7 @@
 
 import { useUser } from "@supabase/auth-helpers-react";
 import { timerDurations } from "@/constants/timerDurations";
-import { updateTimerDuration } from "@/lib/spaceSettings";
+import { updateTimerDuration } from "@/lib/supabase/spaceSettings";
 
 type TimerDurationSelectorProps = {
   current: string;

@@ -9,7 +9,7 @@ import {
   UploadSimpleIcon,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabase/client";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
