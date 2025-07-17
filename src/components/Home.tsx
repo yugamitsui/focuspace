@@ -11,6 +11,7 @@ import { bgmTracks } from "@/constants/bgmTracks";
 import { backgroundImages } from "@/constants/backgroundImages";
 import { visualEffects } from "@/constants/visualEffects";
 import { timerDurations } from "@/constants/timerDurations";
+import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import {
@@ -35,10 +36,12 @@ export default function Home() {
     visualEffects.find((v) => v.id === visualEffectId)?.component ??
     visualEffects[0].component;
 
-  const { timeLeft, isRunning, toggle, reset } = useTimer(
+  const { timeLeft, isRunning, hasStarted, toggle, reset } = useTimer(
     selectedDurationId,
     () => selectedTrack.bgm
   );
+
+  useNavigationGuard(hasStarted);
 
   useEffect(() => {
     const fetchSpaceSettings = async () => {
@@ -99,6 +102,7 @@ export default function Home() {
           onSelect={setSelectedDurationId}
           timeLeft={timeLeft}
           isRunning={isRunning}
+          hasStarted={hasStarted}
           toggle={toggle}
           reset={reset}
         />

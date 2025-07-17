@@ -11,6 +11,7 @@ type TimerProps = {
   currentId: string;
   timeLeft: number;
   isRunning: boolean;
+  hasStarted: boolean;
   onSelect: (id: string) => void;
   toggle: () => void;
   reset: () => void;
@@ -20,13 +21,18 @@ export default function Timer({
   currentId,
   timeLeft,
   isRunning,
+  hasStarted,
   onSelect,
   toggle,
   reset,
 }: TimerProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-16">
-      <TimerDurationSelector current={currentId} onSelect={onSelect} />
+      <TimerDurationSelector
+        current={currentId}
+        onSelect={onSelect}
+        hasStarted={hasStarted}
+      />
 
       <div className="text-white font-medium text-8xl">
         {formatTime(timeLeft)}

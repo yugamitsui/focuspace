@@ -30,9 +30,15 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 z-50 w-full flex justify-between px-6 py-4">
-      <Link href="/" className="cursor-pointer">
-        <Logo className="w-auto h-8 fill-white" />
-      </Link>
+      {pathname === "/" ? (
+        <button className="cursor-default" aria-label="Focuspace logo" disabled>
+          <Logo className="w-auto h-8 fill-white" />
+        </button>
+      ) : (
+        <Link href="/" className="cursor-pointer" aria-label="Go to Home">
+          <Logo className="w-auto h-8 fill-white" />
+        </Link>
+      )}
 
       {!inAuthPages &&
         (isLoggedIn && user ? (

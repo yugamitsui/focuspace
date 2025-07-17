@@ -39,6 +39,14 @@ export function useTimer(durationId: string, getTrackList: () => string[]) {
     return () => clearInterval(timerRef.current!);
   }, [isRunning, isResting, duration]);
 
+  const hasStarted = useMemo(() => {
+    return (
+      isRunning ||
+      isResting ||
+      timeLeft < (isResting ? duration.restTime : duration.focusTime)
+    );
+  }, [isRunning, isResting, timeLeft, duration]);
+
   const toggle = () => {
     setIsRunning((prev) => {
       if (prev) {
@@ -62,6 +70,7 @@ export function useTimer(durationId: string, getTrackList: () => string[]) {
   return {
     timeLeft,
     isRunning,
+    hasStarted,
     toggle,
     reset,
   };
