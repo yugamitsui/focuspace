@@ -1,7 +1,7 @@
 "use client";
 
 import { timerDurations } from "@/constants/timerDurations";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { updateTimerDurationId } from "@/lib/supabase/spaceSettings";
 
 type TimerDurationSelectorProps = {

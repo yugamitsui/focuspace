@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { visualEffects } from "@/constants/visualEffects";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { updateVisualEffectId } from "@/lib/supabase/spaceSettings";
 
 interface EffectSelectorProps {

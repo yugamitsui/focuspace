@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ImageSquareIcon } from "@phosphor-icons/react";
 import { backgroundImages } from "@/constants/backgroundImages";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { updateBackgroundImageUrl } from "@/lib/supabase/spaceSettings";
 
 export default function BackgroundSelector({

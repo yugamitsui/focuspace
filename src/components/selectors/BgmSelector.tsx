@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { MusicNotesSimpleIcon } from "@phosphor-icons/react";
 import { bgmTracks } from "@/constants/bgmTracks";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { updateBackgroundMusicId } from "@/lib/supabase/spaceSettings";
 
 export default function BgmSelector({

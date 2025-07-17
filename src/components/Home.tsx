@@ -10,7 +10,7 @@ import { bgmTracks } from "@/constants/bgmTracks";
 import { backgroundImages } from "@/constants/backgroundImages";
 import { visualEffects } from "@/constants/visualEffects";
 import { timerDurations } from "@/constants/timerDurations";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
