@@ -1,8 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
-import toast from "react-hot-toast";
 import {
   GoogleLogoIcon,
   GithubLogoIcon,
@@ -10,35 +7,19 @@ import {
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, SignupFormData } from "@/schemas/auth";
+import { useSignUp } from "@/hooks/auth/useSignUp";
+import { signUpSchema, SignUpFormData } from "@/schemas/auth";
 
-export default function SignupPage() {
-  const router = useRouter();
+export default function SignUpPage() {
+  const { signUpWithEmail, signUpWithOAuth } = useSignUp();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
   });
-
-  const handleSignup = async (data: SignupFormData) => {
-    const { error } = await supabase.auth.signUp(data);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Check your email to confirm signup.");
-      router.push("/signin");
-    }
-  };
-
-  const handleOAuthSignup = async (
-    provider: "google" | "github" | "discord"
-  ) => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
-    if (error) toast.error(error.message);
-  };
 
   return (
     <main className="min-h-screen flex items-center justify-center">
@@ -59,7 +40,7 @@ export default function SignupPage() {
         </div>
 
         <form
-          onSubmit={handleSubmit(handleSignup)}
+          onSubmit={handleSubmit(signUpWithEmail)}
           noValidate
           className="space-y-4 text-left"
         >
@@ -107,21 +88,21 @@ export default function SignupPage() {
 
         <div className="space-y-4">
           <button
-            onClick={() => handleOAuthSignup("google")}
+            onClick={() => signUpWithOAuth("google")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GoogleLogoIcon size={24} />
             <span className="font-semibold">Sign up with Google</span>
           </button>
           <button
-            onClick={() => handleOAuthSignup("github")}
+            onClick={() => signUpWithOAuth("github")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GithubLogoIcon size={24} />
             <span className="font-semibold">Sign up with GitHub</span>
           </button>
           <button
-            onClick={() => handleOAuthSignup("discord")}
+            onClick={() => signUpWithOAuth("discord")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <DiscordLogoIcon size={24} />

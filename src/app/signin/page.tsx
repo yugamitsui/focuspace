@@ -1,8 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
-import toast from "react-hot-toast";
 import {
   GoogleLogoIcon,
   GithubLogoIcon,
@@ -10,34 +7,19 @@ import {
 } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signinSchema, SigninFormData } from "@/schemas/auth";
+import { useSignIn } from "@/hooks/auth/useSignIn";
+import { signInSchema, SignInFormData } from "@/schemas/auth";
 
-export default function SigninPage() {
-  const router = useRouter();
+export default function SignInPage() {
+  const { signInWithEmail, signInWithOAuth } = useSignIn();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninFormData>({
-    resolver: zodResolver(signinSchema),
+  } = useForm<SignInFormData>({
+    resolver: zodResolver(signInSchema),
   });
-
-  const handleSignin = async (data: SigninFormData) => {
-    const { error } = await supabase.auth.signInWithPassword(data);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      router.push("/");
-    }
-  };
-
-  const handleOAuthSignin = async (
-    provider: "google" | "github" | "discord"
-  ) => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
-    if (error) toast.error(error.message);
-  };
 
   return (
     <main className="min-h-screen flex items-center justify-center">
@@ -58,7 +40,7 @@ export default function SigninPage() {
         </div>
 
         <form
-          onSubmit={handleSubmit(handleSignin)}
+          onSubmit={handleSubmit(signInWithEmail)}
           noValidate
           className="space-y-4 text-left"
         >
@@ -106,21 +88,21 @@ export default function SigninPage() {
 
         <div className="space-y-4">
           <button
-            onClick={() => handleOAuthSignin("google")}
+            onClick={() => signInWithOAuth("google")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GoogleLogoIcon size={24} />
             <span className="font-semibold">Sign in with Google</span>
           </button>
           <button
-            onClick={() => handleOAuthSignin("github")}
+            onClick={() => signInWithOAuth("github")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <GithubLogoIcon size={24} />
             <span className="font-semibold">Sign in with GitHub</span>
           </button>
           <button
-            onClick={() => handleOAuthSignin("discord")}
+            onClick={() => signInWithOAuth("discord")}
             className="w-full px-6 py-3 flex items-center justify-center gap-2 border border-white/75 rounded-full hover:bg-white hover:text-black transition duration-500 cursor-pointer"
           >
             <DiscordLogoIcon size={24} />
