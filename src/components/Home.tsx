@@ -15,10 +15,10 @@ import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
 import {
-  getBackgroundImage,
-  getBackgroundMusic,
-  getVisualEffect,
-  getTimerDuration,
+  getTimerDurationId,
+  getBackgroundMusicId,
+  getBackgroundImageUrl,
+  getVisualEffectId,
 } from "@/lib/supabase/spaceSettings";
 
 export default function Home() {
@@ -47,17 +47,17 @@ export default function Home() {
     const fetchSpaceSettings = async () => {
       if (!user) return;
       try {
-        const [musicId, bgUrl, effectId, durationId] = await Promise.all([
-          getBackgroundMusic(user.id),
-          getBackgroundImage(user.id),
-          getVisualEffect(user.id),
-          getTimerDuration(user.id),
+        const [durationId, musicId, bgUrl, effectId] = await Promise.all([
+          getTimerDurationId(user.id),
+          getBackgroundMusicId(user.id),
+          getBackgroundImageUrl(user.id),
+          getVisualEffectId(user.id),
         ]);
 
+        if (durationId) setSelectedDurationId(durationId);
         if (musicId) setTrackId(musicId);
         if (bgUrl) setBackground(bgUrl);
         if (effectId) setVisualEffectId(effectId);
-        if (durationId) setSelectedDurationId(durationId);
       } catch (err) {
         console.error("Failed to fetch space settings:", err);
       }

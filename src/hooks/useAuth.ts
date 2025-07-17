@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { getDisplayName, getAvatarUrl } from "@/lib/supabase/profiles";
 
 export interface UserInfo {
   name?: string;
@@ -17,26 +18,25 @@ export function useAuth() {
   const [avatarError, setAvatarError] = useState(false);
 
   const fetchUserProfile = async (userId: string, email: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("name, avatar_url")
-      .eq("id", userId)
-      .single();
+    try {
+      const [name, avatarUrl] = await Promise.all([
+        getDisplayName(userId),
+        getAvatarUrl(userId),
+      ]);
 
-    if (error) {
-      console.error("Failed to fetch profile:", error.message);
+      return {
+        name: name || email,
+        avatar_url: avatarUrl || "",
+        email,
+      };
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
       return {
         name: email,
         avatar_url: "",
         email,
       };
     }
-
-    return {
-      name: data.name || email,
-      avatar_url: data.avatar_url || "",
-      email,
-    };
   };
 
   useEffect(() => {

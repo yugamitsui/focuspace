@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { visualEffects } from "@/constants/visualEffects";
 import { useUser } from "@supabase/auth-helpers-react";
-import { updateVisualEffect } from "@/lib/supabase/spaceSettings";
+import { updateVisualEffectId } from "@/lib/supabase/spaceSettings";
 
 interface EffectSelectorProps {
   current: string;
@@ -36,7 +36,7 @@ export default function EffectSelector({
     onSelect(id);
     if (user?.id) {
       try {
-        await updateVisualEffect(user.id, id);
+        await updateVisualEffectId(user.id, id);
       } catch (err) {
         console.error("Failed to update effect:", err);
       }

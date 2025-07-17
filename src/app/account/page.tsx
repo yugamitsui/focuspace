@@ -10,6 +10,12 @@ import {
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
+import {
+  getDisplayName,
+  updateDisplayName,
+  getAvatarUrl,
+  updateAvatarUrl,
+} from "@/lib/supabase/profiles";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
@@ -76,21 +82,13 @@ export default function AccountPage() {
         localStorage.removeItem("should_check_identity");
       }
 
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("name, avatar_url")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) {
-        console.error("Failed to load profile:", profileError.message);
-        return;
-      }
+      const name = await getDisplayName(user.id);
+      const avatarUrl = await getAvatarUrl(user.id);
 
       const loadedProfile = {
-        name: profileData?.name ?? "",
+        name: name ?? "",
         email: currentEmail,
-        avatar_url: profileData?.avatar_url ?? "",
+        avatar_url: avatarUrl ?? "",
         provider: user.app_metadata?.provider ?? "email",
       };
 
@@ -115,12 +113,7 @@ export default function AccountPage() {
     const user = sessionData.session?.user;
     if (!user) return;
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ avatar_url: newUrl })
-      .eq("id", user.id);
-
-    if (error) return console.error(error.message);
+    await updateAvatarUrl(user.id, newUrl);
 
     setOriginalProfile((prev) =>
       prev ? { ...prev, avatar_url: newUrl } : prev
@@ -139,15 +132,7 @@ export default function AccountPage() {
     const user = sessionData.session?.user;
     if (!user || !profile) return;
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ name: profile.name })
-      .eq("id", user.id);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    await updateDisplayName(user.id, profile.name);
 
     toast.success("Your name has been updated.");
     setOriginalProfile((prev) =>

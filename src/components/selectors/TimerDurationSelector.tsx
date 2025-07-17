@@ -2,7 +2,7 @@
 
 import { useUser } from "@supabase/auth-helpers-react";
 import { timerDurations } from "@/constants/timerDurations";
-import { updateTimerDuration } from "@/lib/supabase/spaceSettings";
+import { updateTimerDurationId } from "@/lib/supabase/spaceSettings";
 
 type TimerDurationSelectorProps = {
   current: string;
@@ -30,7 +30,7 @@ export default function TimerDurationSelector({
     onSelect(id);
     if (user?.id) {
       try {
-        await updateTimerDuration(user.id, id);
+        await updateTimerDurationId(user.id, id);
       } catch (err) {
         console.error("Failed to update timer duration:", err);
       }

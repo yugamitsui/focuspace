@@ -5,7 +5,7 @@ import Image from "next/image";
 import { MusicNotesSimpleIcon } from "@phosphor-icons/react";
 import { useUser } from "@supabase/auth-helpers-react";
 import { bgmTracks } from "@/constants/bgmTracks";
-import { updateBackgroundMusic } from "@/lib/supabase/spaceSettings";
+import { updateBackgroundMusicId } from "@/lib/supabase/spaceSettings";
 
 export default function BgmSelector({
   current,
@@ -31,7 +31,7 @@ export default function BgmSelector({
     onSelect(trackId);
     if (user?.id) {
       try {
-        await updateBackgroundMusic(user.id, trackId);
+        await updateBackgroundMusicId(user.id, trackId);
       } catch (error) {
         console.error("Failed to update background music:", error);
       }
