@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { visualEffects } from "@/constants/visualEffects";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { updateVisualEffectId } from "@/lib/supabase/spaceSettings";
 
 interface EffectSelectorProps {
@@ -16,7 +16,7 @@ export default function EffectSelector({
 }: EffectSelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const user = useUser();
+  const user = useCurrentUser();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

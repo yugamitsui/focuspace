@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { MusicNotesSimpleIcon } from "@phosphor-icons/react";
-import { useUser } from "@supabase/auth-helpers-react";
 import { bgmTracks } from "@/constants/bgmTracks";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { updateBackgroundMusicId } from "@/lib/supabase/spaceSettings";
 
 export default function BgmSelector({
@@ -16,7 +16,7 @@ export default function BgmSelector({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const user = useUser();
+  const user = useCurrentUser();
 
   useEffect(() => {
     const close = (e: MouseEvent) => {

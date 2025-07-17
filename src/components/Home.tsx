@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@supabase/auth-helpers-react";
 import Timer from "@/components/Timer";
 import FullscreenButton from "./buttons/FullscreenButton";
 import BackgroundSelector from "./selectors/BackgroundSelector";
@@ -11,6 +10,7 @@ import { bgmTracks } from "@/constants/bgmTracks";
 import { backgroundImages } from "@/constants/backgroundImages";
 import { visualEffects } from "@/constants/visualEffects";
 import { timerDurations } from "@/constants/timerDurations";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
@@ -22,7 +22,7 @@ import {
 } from "@/lib/supabase/spaceSettings";
 
 export default function Home() {
-  const user = useUser();
+  const user = useCurrentUser();
 
   const [trackId, setTrackId] = useState<string | null>(null);
   const [background, setBackground] = useState(backgroundImages[0].url);
