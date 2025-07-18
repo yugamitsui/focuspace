@@ -3,21 +3,25 @@ import { supabase } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
 /**
- * Custom React hook to retrieve the current Supabase user object.
+ * Custom React hook to provide the current authenticated user and its loading state.
  *
- * This hook runs on the client side and uses Supabase's auth module
- * to fetch the current authenticated user. It stores the user object
- * in local component state and keeps it updated in response to
- * auth state changes (sign-in, sign-out, token refresh).
+ * This hook:
+ * - Retrieves the initial user via `supabase.auth.getUser()`
+ * - Subscribes to auth state changes (sign-in, sign-out, token refresh) with `onAuthStateChange`
+ * - Updates `user` in real time and sets `isLoading` to false once the state is determined
  *
- * @returns The current Supabase user object, or null if not signed in.
+ * @returns An object containing:
+ * - `user`: the current Supabase user object, or `null` if not signed in
+ * - `isLoading`: whether the user state is still being determined
  */
 export function useCurrentUser() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user ?? null);
+      setIsLoading(false);
     });
 
     const {
@@ -25,6 +29,7 @@ export function useCurrentUser() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setTimeout(() => {
         setUser(session?.user ?? null);
+        setIsLoading(false);
       }, 0);
     });
 
@@ -33,5 +38,8 @@ export function useCurrentUser() {
     };
   }, []);
 
-  return user;
+  return {
+    user,
+    isLoading,
+  };
 }

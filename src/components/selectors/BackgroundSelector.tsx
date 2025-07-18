@@ -16,7 +16,7 @@ export default function BackgroundSelector({
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const user = useCurrentUser();
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -22,7 +22,7 @@ import {
 } from "@/lib/supabase/spaceSettings";
 
 export default function Home() {
-  const user = useCurrentUser();
+  const { user } = useCurrentUser();
 
   const [trackId, setTrackId] = useState<string | null>(null);
   const [background, setBackground] = useState(backgroundImages[0].url);

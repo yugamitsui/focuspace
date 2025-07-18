@@ -17,6 +17,8 @@ import {
   getAvatarUrl,
   updateAvatarUrl,
 } from "@/lib/supabase/profiles";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
@@ -29,7 +31,9 @@ interface Profile {
 }
 
 export default function AccountPage() {
+  useAuthRedirect();
   const router = useRouter();
+  const { user } = useCurrentUser();
   const { signOut } = useSignOut();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -39,15 +43,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-
-      if (!user) {
-        router.push("/signin");
-        return;
-      }
-
-      const currentEmail = user.email ?? "";
+      if (user === null) return;
+      const email = user.email ?? "";
       let updatedProviders = user.app_metadata?.providers || [];
 
       const shouldCheckIdentity = localStorage.getItem("should_check_identity");
@@ -57,7 +54,7 @@ export default function AccountPage() {
 
         if (identities && identities.length > 1) {
           const mismatch = identities.some(
-            (id) => id.identity_data?.email !== currentEmail
+            (id) => id.identity_data?.email !== email
           );
 
           if (mismatch) {
@@ -66,7 +63,7 @@ export default function AccountPage() {
             );
 
             const wrongIdentity = identities.find(
-              (id) => id.identity_data?.email !== currentEmail
+              (id) => id.identity_data?.email !== email
             );
 
             if (wrongIdentity) {
@@ -89,7 +86,7 @@ export default function AccountPage() {
 
       const loadedProfile = {
         name: name ?? "",
-        email: currentEmail,
+        email: email,
         avatar_url: avatarUrl ?? "",
         provider: user.app_metadata?.provider ?? "email",
       };
@@ -99,7 +96,7 @@ export default function AccountPage() {
       setLinkedProviders(updatedProviders);
       setLoading(false);
     })();
-  }, [router]);
+  }, [router, user]);
 
   const updateField = (key: keyof Profile, val: string) => {
     setProfile((prev) => (prev ? { ...prev, [key]: val } : prev));
@@ -111,8 +108,6 @@ export default function AccountPage() {
   };
 
   const updateAvatar = async (newUrl: string, previousUrl: string) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const user = sessionData.session?.user;
     if (!user) return;
 
     await updateAvatarUrl(user.id, newUrl);
@@ -130,8 +125,6 @@ export default function AccountPage() {
   };
 
   const updateName = async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const user = sessionData.session?.user;
     if (!user || !profile) return;
 
     await updateDisplayName(user.id, profile.name);
@@ -143,8 +136,6 @@ export default function AccountPage() {
   };
 
   const updateEmail = async () => {
-    const { data } = await supabase.auth.getSession();
-    const user = data.session?.user;
     if (!user || !profile) return;
 
     if (!(linkedProviders.length === 1 && linkedProviders[0] === "email")) {
@@ -215,20 +206,14 @@ export default function AccountPage() {
     const confirmed = confirm("Delete account permanently?");
     if (!confirmed) return;
 
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-    const session = sessionData.session;
-
-    if (sessionError || !session) {
-      toast.error("Failed to retrieve session.");
+    if (!user) {
+      toast.error("You're not signed in.");
       return;
     }
 
-    const userId = session.user.id;
-
     try {
       const { error } = await supabase.functions.invoke("delete-user", {
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: user.id }),
       });
 
       if (error) {

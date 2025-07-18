@@ -16,7 +16,7 @@ export default function EffectSelector({
 }: EffectSelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const user = useCurrentUser();
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

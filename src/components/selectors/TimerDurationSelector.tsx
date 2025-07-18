@@ -15,7 +15,7 @@ export default function TimerDurationSelector({
   onSelect,
   hasStarted,
 }: TimerDurationSelectorProps) {
-  const user = useCurrentUser();
+  const { user } = useCurrentUser();
 
   const handleSelect = async (id: string) => {
     if (id === current) return;
