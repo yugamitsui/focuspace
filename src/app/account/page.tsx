@@ -11,20 +11,15 @@ import {
 import toast from "react-hot-toast";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 import { supabase } from "@/lib/supabase/client";
-import {
-  getDisplayName,
-  updateDisplayName,
-  getAvatarUrl,
-  updateAvatarUrl,
-} from "@/lib/supabase/profiles";
+import { getAvatarUrl, updateAvatarUrl } from "@/lib/supabase/profiles";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
+import { useDisplayName } from "@/hooks/account/useDisplayName";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
 
 interface Profile {
-  name: string;
   email: string;
   avatar_url: string;
   provider: string;
@@ -32,6 +27,7 @@ interface Profile {
 
 export default function AccountPage() {
   useAuthRedirect();
+
   const router = useRouter();
   const { user } = useCurrentUser();
   const { signOut } = useSignOut();
@@ -40,6 +36,14 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
+
+  const {
+    displayName,
+    setDisplayName,
+    isModified,
+    saveDisplayName,
+    isLoading: isNameLoading,
+  } = useDisplayName();
 
   useEffect(() => {
     (async () => {
@@ -81,11 +85,9 @@ export default function AccountPage() {
         localStorage.removeItem("should_check_identity");
       }
 
-      const name = await getDisplayName(user.id);
       const avatarUrl = await getAvatarUrl(user.id);
 
       const loadedProfile = {
-        name: name ?? "",
         email: email,
         avatar_url: avatarUrl ?? "",
         provider: user.app_metadata?.provider ?? "email",
@@ -102,7 +104,7 @@ export default function AccountPage() {
     setProfile((prev) => (prev ? { ...prev, [key]: val } : prev));
   };
 
-  const isModified = (key: keyof Profile) => {
+  const isProfileModified = (key: keyof Profile) => {
     if (!profile || !originalProfile) return false;
     return profile[key] !== originalProfile[key];
   };
@@ -122,17 +124,6 @@ export default function AccountPage() {
         await supabase.storage.from("avatars").remove([filePath]);
       }
     }
-  };
-
-  const updateName = async () => {
-    if (!user || !profile) return;
-
-    await updateDisplayName(user.id, profile.name);
-
-    toast.success("Your name has been updated.");
-    setOriginalProfile((prev) =>
-      prev ? { ...prev, name: profile.name } : prev
-    );
   };
 
   const updateEmail = async () => {
@@ -286,7 +277,7 @@ export default function AccountPage() {
     }
   };
 
-  if (loading || !profile)
+  if (loading || !profile || isNameLoading)
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
@@ -327,17 +318,17 @@ export default function AccountPage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {/* Name */}
+          {/* Display Name */}
           <div className="flex gap-3 w-full">
             <input
-              value={profile.name}
-              onChange={(e) => updateField("name", e.target.value)}
-              placeholder="Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Display Name"
               className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
             />
             <button
-              disabled={!isModified("name")}
-              onClick={updateName}
+              disabled={!isModified}
+              onClick={saveDisplayName}
               className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Save
@@ -354,7 +345,7 @@ export default function AccountPage() {
               className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
             />
             <button
-              disabled={!isModified("email")}
+              disabled={!isProfileModified("email")}
               onClick={updateEmail}
               className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
