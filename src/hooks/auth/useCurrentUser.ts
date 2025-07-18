@@ -9,7 +9,7 @@ import type { User } from "@supabase/supabase-js";
  * to fetch the current user session. It stores the full user object
  * in local component state for use in components.
  *
- * @returns The authenticated Supabase user object or null if not logged in.
+ * @returns The authenticated Supabase user object or null if not signed in.
  */
 export function useCurrentUser() {
   const [user, setUser] = useState<User | null>(null);

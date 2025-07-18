@@ -11,6 +11,8 @@ import toast from "react-hot-toast";
  *
  * Provides functions to sign up with email/password or with OAuth providers.
  * You can optionally specify a redirect URL on success.
+ *
+ * @param options - Optional config such as redirect path
  */
 export function useSignUp(options?: { redirect?: string }) {
   const router = useRouter();

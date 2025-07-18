@@ -9,6 +9,7 @@ import {
   UploadSimpleIcon,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
+import { useSignOut } from "@/hooks/auth/useSignOut";
 import { supabase } from "@/lib/supabase/client";
 import {
   getDisplayName,
@@ -29,6 +30,7 @@ interface Profile {
 
 export default function AccountPage() {
   const router = useRouter();
+  const { signOut } = useSignOut();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -207,11 +209,6 @@ export default function AccountPage() {
     } else {
       toast.success("Password reset email sent.");
     }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
   };
 
   const handleDelete = async () => {
@@ -422,7 +419,7 @@ export default function AccountPage() {
         {/* Danger zone */}
         <div className="space-y-4">
           <button
-            onClick={handleLogout}
+            onClick={signOut}
             className="w-full bg-white/10 hover:bg-white/8 py-3 rounded flex items-center justify-center gap-2 cursor-pointer"
           >
             <SignOutIcon size={24} /> Sign out

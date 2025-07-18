@@ -6,6 +6,7 @@ import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useSignOut } from "@/hooks/auth/useSignOut";
 
 export default function Header() {
   const router = useRouter();
@@ -13,7 +14,8 @@ export default function Header() {
   const inAuthPages =
     pathname.startsWith("/signin") || pathname.startsWith("/signup");
 
-  const { isLoggedIn, user, avatarError, setAvatarError, logout } = useAuth();
+  const { isLoggedIn, user, avatarError, setAvatarError } = useAuth();
+  const { signOut } = useSignOut();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -72,7 +74,7 @@ export default function Header() {
                   {user.name}
                 </button>
                 <button
-                  onClick={logout}
+                  onClick={signOut}
                   className="w-full text-left px-6 py-2 text-sm text-red-500 hover:bg-black transition duration-500 cursor-pointer"
                 >
                   Sign out

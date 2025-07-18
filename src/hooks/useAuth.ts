@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { getDisplayName, getAvatarUrl } from "@/lib/supabase/profiles";
 
@@ -12,7 +11,6 @@ export interface UserInfo {
 }
 
 export function useAuth() {
-  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [avatarError, setAvatarError] = useState(false);
@@ -82,17 +80,10 @@ export function useAuth() {
     };
   }, []);
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/");
-  };
-
   return {
     isLoggedIn,
     user,
     avatarError,
     setAvatarError,
-    logout,
   };
 }
