@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import type { Session } from "@supabase/supabase-js";
 
 /**
- * Custom React hook to retrieve the current Supabase user object.
+ * Custom React hook to retrieve the current Supabase session object.
  *
  * This hook runs on the client side and uses Supabase's auth module
- * to fetch the current authenticated user. It stores the user object
+ * to fetch the current authenticated session. It stores the session object
  * in local component state and keeps it updated in response to
  * auth state changes (sign-in, sign-out, token refresh).
  *
- * @returns The current Supabase user object, or null if not signed in.
+ * @returns The current Supabase session object, or null if not signed in.
  */
-export function useCurrentUser() {
-  const [user, setUser] = useState<User | null>(null);
+export function useCurrentSession() {
+  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user ?? null);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session ?? null);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setTimeout(() => {
-        setUser(session?.user ?? null);
+        setSession(session ?? null);
       }, 0);
     });
 
@@ -33,5 +33,5 @@ export function useCurrentUser() {
     };
   }, []);
 
-  return user;
+  return session;
 }
