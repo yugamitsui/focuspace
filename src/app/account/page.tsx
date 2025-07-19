@@ -14,15 +14,11 @@ import { supabase } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 import { useDisplayName } from "@/hooks/account/useDisplayName";
+import { useEmail } from "@/hooks/account/useEmail";
 import { useAvatar } from "@/hooks/account/useAvatar";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
-
-interface Profile {
-  email: string;
-  provider: string;
-}
 
 export default function AccountPage() {
   useAuthRedirect();
@@ -31,27 +27,33 @@ export default function AccountPage() {
   const { user } = useCurrentUser();
   const { signOut } = useSignOut();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
-  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
 
   const {
     displayName,
     setDisplayName,
-    isModified,
+    isModified: isNameModified,
     saveDisplayName,
     isLoading: isNameLoading,
   } = useDisplayName();
 
+  const {
+    email,
+    setEmail,
+    isModified: isEmailModified,
+    updateEmail,
+    isLoading: isEmailLoading,
+  } = useEmail();
+
   const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
+
+  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       if (user === null) return;
-      const email = user.email ?? "";
-      let updatedProviders = user.app_metadata?.providers || [];
 
+      let updatedProviders = user.app_metadata?.providers || [];
       const shouldCheckIdentity = localStorage.getItem("should_check_identity");
 
       if (shouldCheckIdentity) {
@@ -86,52 +88,10 @@ export default function AccountPage() {
         localStorage.removeItem("should_check_identity");
       }
 
-      const loadedProfile = {
-        email: email,
-        provider: user.app_metadata?.provider ?? "email",
-      };
-
-      setProfile(loadedProfile);
-      setOriginalProfile(loadedProfile);
       setLinkedProviders(updatedProviders);
       setLoading(false);
     })();
-  }, [router, user]);
-
-  const updateField = (key: keyof Profile, val: string) => {
-    setProfile((prev) => (prev ? { ...prev, [key]: val } : prev));
-  };
-
-  const isProfileModified = (key: keyof Profile) => {
-    if (!profile || !originalProfile) return false;
-    return profile[key] !== originalProfile[key];
-  };
-
-  const updateEmail = async () => {
-    if (!user || !profile) return;
-
-    if (!(linkedProviders.length === 1 && linkedProviders[0] === "email")) {
-      toast.error(
-        "You can't change your email while a social provider is connected."
-      );
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({
-      email: profile.email,
-    });
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success("Confirmation email sent! Please check your inbox.");
-
-    setOriginalProfile((prev) =>
-      prev ? { ...prev, email: profile.email } : prev
-    );
-  };
+  }, [router, user, email]);
 
   const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
@@ -142,12 +102,10 @@ export default function AccountPage() {
 
   const handlePasswordReset = async () => {
     const origin = window.location.origin;
-    const { error } = await supabase.auth.resetPasswordForEmail(
-      profile!.email,
-      {
-        redirectTo: `${origin}/reset-password`,
-      }
-    );
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/reset-password`,
+    });
+
     if (error) {
       toast.error(error.message);
     } else {
@@ -157,12 +115,7 @@ export default function AccountPage() {
 
   const handleDelete = async () => {
     const confirmed = confirm("Delete account permanently?");
-    if (!confirmed) return;
-
-    if (!user) {
-      toast.error("You're not signed in.");
-      return;
-    }
+    if (!confirmed || !user) return;
 
     try {
       const { error } = await supabase.functions.invoke("delete-user", {
@@ -239,7 +192,7 @@ export default function AccountPage() {
     }
   };
 
-  if (loading || !profile || isNameLoading || isAvatarLoading)
+  if (loading || isNameLoading || isAvatarLoading || isEmailLoading)
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
@@ -285,11 +238,11 @@ export default function AccountPage() {
             <input
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Display Name"
+              placeholder="Name"
               className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
             />
             <button
-              disabled={!isModified}
+              disabled={!isNameModified}
               onClick={saveDisplayName}
               className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -300,14 +253,14 @@ export default function AccountPage() {
           {/* Email */}
           <div className="flex gap-3 w-full">
             <input
-              value={profile.email}
-              onChange={(e) => updateField("email", e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               type="email"
               className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
             />
             <button
-              disabled={!isProfileModified("email")}
+              disabled={!isEmailModified}
               onClick={updateEmail}
               className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >

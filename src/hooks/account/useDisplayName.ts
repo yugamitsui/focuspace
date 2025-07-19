@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 export function useDisplayName() {
   const { user } = useCurrentUser();
   const [displayName, setDisplayName] = useState("");
-  const [originalName, setOriginalName] = useState("");
+  const [originalDisplayName, setOriginalDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,18 +25,18 @@ export function useDisplayName() {
       const name = await getDisplayName(user.id);
       const safeName = name ?? "";
       setDisplayName(safeName);
-      setOriginalName(safeName);
+      setOriginalDisplayName(safeName);
       setIsLoading(false);
     })();
   }, [user]);
 
-  const isModified = displayName !== originalName;
+  const isModified = displayName !== originalDisplayName;
 
   const saveDisplayName = async () => {
     if (!user) return;
 
     await updateDisplayName(user.id, displayName);
-    setOriginalName(displayName);
+    setOriginalDisplayName(displayName);
     toast.success("Your name has been updated.");
   };
 
