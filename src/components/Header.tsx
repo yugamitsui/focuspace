@@ -8,26 +8,15 @@ import { GearIcon, SignOutIcon } from "@phosphor-icons/react";
 import Logo from "@/assets/logo.svg";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useSignOut } from "@/hooks/auth/useSignOut";
-import { getAvatarUrl } from "@/lib/supabase/profiles";
+import { useAvatar } from "@/hooks/account/useAvatar";
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
+
   const { user } = useCurrentUser();
-
-  const [avatarUrl, setAvatarUrl] = useState("/images/avatars/avatar_01.png");
-
-  useEffect(() => {
-    if (!user?.id) return;
-
-    getAvatarUrl(user.id).then((url) => {
-      if (url) {
-        setAvatarUrl(url);
-      }
-    });
-  }, [user?.id]);
-
   const { signOut } = useSignOut();
+  const { avatarUrl } = useAvatar();
 
   const inAuthPages =
     pathname.startsWith("/signin") ||
@@ -48,7 +37,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 z-50 w-full flex justify-between px-6 py-4">
+    <header className="fixed top-0 z-50 w-full flex items-start justify-between px-6 py-4">
       {pathname === "/" ? (
         <button className="cursor-default" aria-label="Focuspace logo" disabled>
           <Logo className="w-auto h-8 fill-white" />
@@ -65,6 +54,8 @@ export default function Header() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="block cursor-pointer focus:outline-none"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
             >
               <Image
                 src={avatarUrl}
@@ -78,14 +69,20 @@ export default function Header() {
             {menuOpen && (
               <div className="absolute right-0 mt-2 bg-black/50 rounded p-2 min-w-48 z-50">
                 <button
-                  onClick={() => router.push("/account")}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push("/account");
+                  }}
                   className="flex items-center gap-2 w-full p-2 rounded text-sm text-white hover:bg-black transition duration-500 cursor-pointer"
                 >
                   <GearIcon size={20} weight="light" />
                   <span>Account settings</span>
                 </button>
                 <button
-                  onClick={signOut}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    signOut();
+                  }}
                   className="flex items-center gap-2 w-full p-2 rounded text-sm text-red-500 hover:bg-black transition duration-500 cursor-pointer"
                 >
                   <SignOutIcon size={20} weight="light" />

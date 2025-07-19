@@ -11,17 +11,16 @@ import {
 import toast from "react-hot-toast";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 import { supabase } from "@/lib/supabase/client";
-import { getAvatarUrl, updateAvatarUrl } from "@/lib/supabase/profiles";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 import { useDisplayName } from "@/hooks/account/useDisplayName";
+import { useAvatar } from "@/hooks/account/useAvatar";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
 
 interface Profile {
   email: string;
-  avatar_url: string;
   provider: string;
 }
 
@@ -44,6 +43,8 @@ export default function AccountPage() {
     saveDisplayName,
     isLoading: isNameLoading,
   } = useDisplayName();
+
+  const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
 
   useEffect(() => {
     (async () => {
@@ -85,11 +86,8 @@ export default function AccountPage() {
         localStorage.removeItem("should_check_identity");
       }
 
-      const avatarUrl = await getAvatarUrl(user.id);
-
       const loadedProfile = {
         email: email,
-        avatar_url: avatarUrl ?? "",
         provider: user.app_metadata?.provider ?? "email",
       };
 
@@ -107,23 +105,6 @@ export default function AccountPage() {
   const isProfileModified = (key: keyof Profile) => {
     if (!profile || !originalProfile) return false;
     return profile[key] !== originalProfile[key];
-  };
-
-  const updateAvatar = async (newUrl: string, previousUrl: string) => {
-    if (!user) return;
-
-    await updateAvatarUrl(user.id, newUrl);
-
-    setOriginalProfile((prev) =>
-      prev ? { ...prev, avatar_url: newUrl } : prev
-    );
-
-    if (previousUrl.includes("/storage/v1/object/public/avatars/")) {
-      const filePath = previousUrl.split("/avatars/")[1];
-      if (filePath) {
-        await supabase.storage.from("avatars").remove([filePath]);
-      }
-    }
   };
 
   const updateEmail = async () => {
@@ -153,28 +134,9 @@ export default function AccountPage() {
   };
 
   const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0] || !profile) return;
+    if (!e.target.files || !e.target.files[0]) return;
     const file = e.target.files[0];
-    const fileName = `avatar-${Date.now()}.${file.name.split(".").pop()}`;
-    const previousAvatarUrl = profile.avatar_url || "";
-
-    const toastId = toast.loading("Uploading avatar...");
-
-    const { error } = await supabase.storage
-      .from("avatars")
-      .upload(fileName, file, {
-        upsert: true,
-      });
-
-    if (error) {
-      toast.error("Upload failed.", { id: toastId });
-    } else {
-      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
-      updateField("avatar_url", data.publicUrl);
-      await updateAvatar(data.publicUrl, previousAvatarUrl);
-      toast.success("Avatar updated!", { id: toastId });
-    }
-
+    await uploadAvatar(file);
     e.target.value = "";
   };
 
@@ -277,7 +239,7 @@ export default function AccountPage() {
     }
   };
 
-  if (loading || !profile || isNameLoading)
+  if (loading || !profile || isNameLoading || isAvatarLoading)
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
@@ -293,8 +255,8 @@ export default function AccountPage() {
         <div className="flex items-center gap-6">
           <div className="relative">
             <Image
-              src={profile.avatar_url || "/images/avatars/avatar_01.png"}
-              alt="avatar"
+              src={avatarUrl}
+              alt="Avatar"
               width={96}
               height={96}
               className="w-24 h-24 rounded-full object-cover"
