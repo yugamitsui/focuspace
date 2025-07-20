@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
+import { SocialProvider } from "@/constants/socialProviders";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-
-type SocialProvider = "google" | "github" | "discord";
 
 /**
  * useProviders

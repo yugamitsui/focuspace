@@ -1,33 +1,24 @@
 "use client";
 
 import { ChangeEvent, useRef } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   SignOutIcon,
   TrashIcon,
   UploadSimpleIcon,
 } from "@phosphor-icons/react";
-import toast from "react-hot-toast";
+import { SOCIAL_PROVIDERS } from "@/constants/socialProviders";
 import { useSignOut } from "@/hooks/auth/useSignOut";
-import { supabase } from "@/lib/supabase/client";
 import { useAvatar } from "@/hooks/account/useAvatar";
 import { useDisplayName } from "@/hooks/account/useDisplayName";
 import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
-import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useEmail } from "@/hooks/auth/useEmail";
 import { usePasswordResetEmail } from "@/hooks/auth/usePasswordResetEmail";
 import { useProviders } from "@/hooks/auth/useProviders";
-
-type SocialProvider = "google" | "github" | "discord";
-const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
+import { useDeleteAccount } from "@/hooks/auth/useDeleteAccount";
 
 export default function AccountPage() {
   useAuthRedirect();
-
-  const router = useRouter();
-  const { user } = useCurrentUser();
-  const { signOut } = useSignOut();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
@@ -64,30 +55,14 @@ export default function AccountPage() {
     disconnectProvider,
   } = useProviders(email);
 
-  const handleDelete = async () => {
-    const confirmed = confirm("Delete account permanently?");
-    if (!confirmed || !user) return;
+  const { signOut } = useSignOut();
 
-    try {
-      const { error } = await supabase.functions.invoke("delete-user", {
-        body: JSON.stringify({ user_id: user.id }),
-      });
+  const { deleteAccount } = useDeleteAccount();
 
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+  const isLoading =
+    isAvatarLoading || isNameLoading || isEmailLoading || isProviderLoading;
 
-      toast.success("Account deleted.");
-      await supabase.auth.signOut();
-      router.push("/");
-    } catch (e) {
-      console.error("Unexpected error:", e);
-      toast.error("Unexpected error occurred.");
-    }
-  };
-
-  if (isNameLoading || isAvatarLoading || isEmailLoading || isProviderLoading)
+  if (isLoading)
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
@@ -206,7 +181,7 @@ export default function AccountPage() {
             <SignOutIcon size={24} /> Sign out
           </button>
           <button
-            onClick={handleDelete}
+            onClick={deleteAccount}
             className="w-full bg-red-600 hover:bg-red-700 py-3 rounded flex items-center justify-center gap-2 cursor-pointer"
           >
             <TrashIcon size={24} /> Delete account
