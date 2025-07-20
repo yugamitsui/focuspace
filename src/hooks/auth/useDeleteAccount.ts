@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentUser } from "./useCurrentUser";

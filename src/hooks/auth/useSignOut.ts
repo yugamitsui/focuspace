@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
