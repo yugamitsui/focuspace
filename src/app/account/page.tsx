@@ -31,18 +31,20 @@ export default function AccountPage() {
   };
 
   const {
-    displayName,
-    setDisplayName,
-    isModified: isNameModified,
+    register: registerName,
+    handleSubmit: handleNameSubmit,
     saveDisplayName,
-    isLoading: isNameLoading,
+    error: displayNameError,
+    isModified: isDisplayNameModified,
+    isLoading: isDisplayNameLoading,
   } = useDisplayName();
 
   const {
-    email,
-    setEmail,
-    isModified: isEmailModified,
+    register: registerEmail,
+    handleSubmit: handleEmailSubmit,
     updateEmail,
+    error: emailError,
+    isModified: isEmailModified,
     isLoading: isEmailLoading,
   } = useEmail();
 
@@ -53,21 +55,24 @@ export default function AccountPage() {
     isLoading: isProviderLoading,
     connectProvider,
     disconnectProvider,
-  } = useProviders(email);
+  } = useProviders();
 
   const { signOut } = useSignOut();
-
   const { deleteAccount } = useDeleteAccount();
 
   const isLoading =
-    isAvatarLoading || isNameLoading || isEmailLoading || isProviderLoading;
+    isAvatarLoading ||
+    isDisplayNameLoading ||
+    isEmailLoading ||
+    isProviderLoading;
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
       </main>
     );
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center">
@@ -84,7 +89,6 @@ export default function AccountPage() {
               height={96}
               className="w-24 h-24 rounded-full object-cover"
             />
-
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -104,44 +108,52 @@ export default function AccountPage() {
 
         <div className="flex flex-col gap-3">
           {/* Display Name */}
-          <div className="flex gap-3 w-full">
-            <input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Name"
-              className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
-            />
-            <button
-              disabled={!isNameModified}
-              onClick={saveDisplayName}
-              className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save
-            </button>
+          <div>
+            <div className="flex gap-3 w-full">
+              <input
+                {...registerName("name")}
+                placeholder="Name"
+                className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
+              />
+              <button
+                disabled={!isDisplayNameModified}
+                onClick={handleNameSubmit(saveDisplayName)}
+                className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save
+              </button>
+            </div>
+            {displayNameError && (
+              <p className="text-red-500 text-sm mt-2">{displayNameError}</p>
+            )}
           </div>
 
           {/* Email */}
-          <div className="flex gap-3 w-full">
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              type="email"
-              className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
-            />
-            <button
-              disabled={!isEmailModified}
-              onClick={updateEmail}
-              className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:bg-blue-600 disabled:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save
-            </button>
+          <div>
+            <div className="flex gap-3 w-full">
+              <input
+                {...registerEmail("email")}
+                placeholder="Email"
+                type="email"
+                className="w-full rounded bg-white/10 px-5 py-3 focus:outline-none focus:ring-1 focus:ring-white/75"
+              />
+              <button
+                disabled={!isEmailModified}
+                onClick={handleEmailSubmit(updateEmail)}
+                className="text-sm bg-blue-600 text-white px-5 py-3 rounded cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save
+              </button>
+            </div>
+            {emailError && (
+              <p className="text-red-500 text-sm mt-2">{emailError}</p>
+            )}
           </div>
         </div>
 
         {/* Password reset */}
         <button
-          onClick={() => sendPasswordResetEmail(email)}
+          onClick={() => sendPasswordResetEmail()}
           className="self-start text-sm text-blue-500 cursor-pointer hover:underline"
         >
           Send password-reset email
