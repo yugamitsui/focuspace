@@ -1,14 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { supabase } from "@/lib/supabase/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, ResetPasswordFormData } from "@/schemas/auth";
+import { useResetPassword } from "@/hooks/auth/useResetPassword";
 
 export default function ResetPasswordPage() {
-  const router = useRouter();
+  const { resetPassword } = useResetPassword();
 
   const {
     register,
@@ -18,22 +16,8 @@ export default function ResetPasswordPage() {
     resolver: zodResolver(resetPasswordSchema),
   });
 
-  const handleSave = async (data: ResetPasswordFormData) => {
-    const { error } = await supabase.auth.updateUser({
-      password: data.password,
-    });
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success("Your password has been reset. Please sign in again.");
-
-    setTimeout(async () => {
-      await supabase.auth.signOut();
-      router.push("/signin");
-    }, 1000);
+  const onSubmit = async (data: ResetPasswordFormData) => {
+    await resetPassword(data.password);
   };
 
   return (
@@ -42,7 +26,7 @@ export default function ResetPasswordPage() {
         <h1 className="text-3xl font-bold text-white">Reset your password</h1>
 
         <form
-          onSubmit={handleSubmit(handleSave)}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate
           className="space-y-6"
         >

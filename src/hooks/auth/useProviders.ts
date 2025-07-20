@@ -131,9 +131,9 @@ export function useProviders(email: string) {
     }
 
     toast.success(
-      `Successfully disconnected from ${
+      `${
         provider.charAt(0).toUpperCase() + provider.slice(1)
-      }.`
+      } disconnected successfully.`
     );
 
     // Refresh the list of connected providers

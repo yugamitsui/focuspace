@@ -11,12 +11,13 @@ import {
 import toast from "react-hot-toast";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 import { supabase } from "@/lib/supabase/client";
-import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
-import { useDisplayName } from "@/hooks/account/useDisplayName";
-import { useEmail } from "@/hooks/account/useEmail";
 import { useAvatar } from "@/hooks/account/useAvatar";
-import { useProviders } from "@/hooks/account/useProviders";
+import { useDisplayName } from "@/hooks/account/useDisplayName";
+import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useEmail } from "@/hooks/auth/useEmail";
+import { usePasswordResetEmail } from "@/hooks/auth/usePasswordResetEmail";
+import { useProviders } from "@/hooks/auth/useProviders";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
@@ -27,7 +28,16 @@ export default function AccountPage() {
   const router = useRouter();
   const { user } = useCurrentUser();
   const { signOut } = useSignOut();
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
+
+  const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0]) return;
+    const file = e.target.files[0];
+    await uploadAvatar(file);
+    e.target.value = "";
+  };
 
   const {
     displayName,
@@ -45,7 +55,7 @@ export default function AccountPage() {
     isLoading: isEmailLoading,
   } = useEmail();
 
-  const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
+  const { sendPasswordResetEmail } = usePasswordResetEmail();
 
   const {
     connectedProviders,
@@ -53,26 +63,6 @@ export default function AccountPage() {
     connectProvider,
     disconnectProvider,
   } = useProviders(email);
-
-  const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    const file = e.target.files[0];
-    await uploadAvatar(file);
-    e.target.value = "";
-  };
-
-  const handlePasswordReset = async () => {
-    const origin = window.location.origin;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/reset-password`,
-    });
-
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Password reset email sent.");
-    }
-  };
 
   const handleDelete = async () => {
     const confirmed = confirm("Delete account permanently?");
@@ -176,7 +166,7 @@ export default function AccountPage() {
 
         {/* Password reset */}
         <button
-          onClick={handlePasswordReset}
+          onClick={() => sendPasswordResetEmail(email)}
           className="self-start text-sm text-blue-500 cursor-pointer hover:underline"
         >
           Send password-reset email
