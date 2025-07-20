@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { visualEffects } from "@/constants/visualEffects";
-import { useUser } from "@supabase/auth-helpers-react";
-import { updateVisualEffect } from "@/lib/spaceSettings";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { updateVisualEffectId } from "@/lib/supabase/spaceSettings";
 
 interface EffectSelectorProps {
   current: string;
@@ -16,7 +16,7 @@ export default function EffectSelector({
 }: EffectSelectorProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const user = useUser();
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,7 +36,7 @@ export default function EffectSelector({
     onSelect(id);
     if (user?.id) {
       try {
-        await updateVisualEffect(user.id, id);
+        await updateVisualEffectId(user.id, id);
       } catch (err) {
         console.error("Failed to update effect:", err);
       }

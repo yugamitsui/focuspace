@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useUser } from "@supabase/auth-helpers-react";
 import { ImageSquareIcon } from "@phosphor-icons/react";
 import { backgroundImages } from "@/constants/backgroundImages";
-import { updateBackgroundImage } from "@/lib/spaceSettings";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { updateBackgroundImageUrl } from "@/lib/supabase/spaceSettings";
 
 export default function BackgroundSelector({
   onSelect,
@@ -16,7 +16,7 @@ export default function BackgroundSelector({
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const user = useUser();
+  const { user } = useCurrentUser();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -43,7 +43,7 @@ export default function BackgroundSelector({
     onSelect(url);
     if (user?.id) {
       try {
-        await updateBackgroundImage(user.id, url);
+        await updateBackgroundImageUrl(user.id, url);
       } catch (error) {
         console.error("Failed to update background image:", error);
       }

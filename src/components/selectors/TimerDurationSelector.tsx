@@ -1,8 +1,8 @@
 "use client";
 
-import { useUser } from "@supabase/auth-helpers-react";
 import { timerDurations } from "@/constants/timerDurations";
-import { updateTimerDuration } from "@/lib/spaceSettings";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { updateTimerDurationId } from "@/lib/supabase/spaceSettings";
 
 type TimerDurationSelectorProps = {
   current: string;
@@ -15,7 +15,7 @@ export default function TimerDurationSelector({
   onSelect,
   hasStarted,
 }: TimerDurationSelectorProps) {
-  const user = useUser();
+  const { user } = useCurrentUser();
 
   const handleSelect = async (id: string) => {
     if (id === current) return;
@@ -30,7 +30,7 @@ export default function TimerDurationSelector({
     onSelect(id);
     if (user?.id) {
       try {
-        await updateTimerDuration(user.id, id);
+        await updateTimerDurationId(user.id, id);
       } catch (err) {
         console.error("Failed to update timer duration:", err);
       }

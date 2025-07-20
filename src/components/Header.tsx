@@ -2,18 +2,26 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import Logo from "@/assets/logo.svg";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { GearIcon, SignOutIcon } from "@phosphor-icons/react";
+import Logo from "@/assets/logo.svg";
+import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useSignOut } from "@/hooks/auth/useSignOut";
+import { useAvatar } from "@/hooks/account/useAvatar";
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const inAuthPages =
-    pathname.startsWith("/signin") || pathname.startsWith("/signup");
 
-  const { isLoggedIn, user, avatarError, setAvatarError, logout } = useAuth();
+  const { user } = useCurrentUser();
+  const { signOut } = useSignOut();
+  const { avatarUrl } = useAvatar();
+
+  const inAuthPages =
+    pathname.startsWith("/signin") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/reset-password");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -29,7 +37,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="fixed top-0 z-50 w-full flex justify-between px-6 py-4">
+    <header className="fixed top-0 z-50 w-full flex items-start justify-between px-6 py-4">
       {pathname === "/" ? (
         <button className="cursor-default" aria-label="Focuspace logo" disabled>
           <Logo className="w-auto h-8 fill-white" />
@@ -41,41 +49,44 @@ export default function Header() {
       )}
 
       {!inAuthPages &&
-        (isLoggedIn && user ? (
+        (user ? (
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="block cursor-pointer focus:outline-none"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
             >
-              {!avatarError && user.avatar_url ? (
-                <Image
-                  src={user.avatar_url}
-                  alt="User avatar"
-                  width={32}
-                  height={32}
-                  className="rounded-full object-cover w-8 h-8"
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                  {user.name?.charAt(0).toUpperCase() ?? "?"}
-                </div>
-              )}
+              <Image
+                src={avatarUrl}
+                alt="User avatar"
+                width={32}
+                height={32}
+                className="rounded-full object-cover w-8 h-8"
+              />
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 bg-black/50 rounded py-2 min-w-36 z-50">
+              <div className="absolute right-0 mt-2 bg-black/50 rounded p-2 min-w-48 z-50">
                 <button
-                  onClick={() => router.push("/account")}
-                  className="w-full text-left px-6 py-2 text-sm text-white hover:bg-black transition duration-500 cursor-pointer"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push("/account");
+                  }}
+                  className="flex items-center gap-2 w-full p-2 rounded text-sm text-white hover:bg-black transition duration-500 cursor-pointer"
                 >
-                  {user.name}
+                  <GearIcon size={20} weight="light" />
+                  <span>Account settings</span>
                 </button>
                 <button
-                  onClick={logout}
-                  className="w-full text-left px-6 py-2 text-sm text-red-500 hover:bg-black transition duration-500 cursor-pointer"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    signOut();
+                  }}
+                  className="flex items-center gap-2 w-full p-2 rounded text-sm text-red-500 hover:bg-black transition duration-500 cursor-pointer"
                 >
-                  Sign out
+                  <SignOutIcon size={20} weight="light" />
+                  <span>Sign out</span>
                 </button>
               </div>
             )}
