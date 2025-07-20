@@ -1,5 +1,3 @@
-"use client";
-
 import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
