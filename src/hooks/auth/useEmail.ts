@@ -1,51 +1,64 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { emailSchema, EmailFormData } from "@/schemas/auth";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
 /**
- * Custom hook to manage the user's email address.
+ * useEmail
  *
- * Responsibilities:
- * - Load the current email and connected providers from Supabase Auth
- * - Track changes to the email for update validation
- * - Provide a method to request an email update
+ * A hook to manage user's email form using react-hook-form and Zod.
  *
- * Constraints:
- * - Email can only be updated when only the "email" provider is connected
- * - Updates will trigger a confirmation email from Supabase
+ * Features:
+ * - Loads the current email and connected providers
+ * - Initializes react-hook-form with schema
+ * - Tracks if the email has changed
+ * - Validates new email address
+ * - Triggers Supabase confirmation email on update
+ * - Blocks update if social providers are linked
  */
 export function useEmail() {
   const { user } = useCurrentUser();
-  const [email, setEmail] = useState("");
-  const [originalEmail, setOriginalEmail] = useState("");
-  const [connectedProviders, setConnectedProviders] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [connectedProviders, setConnectedProviders] = useState<string[]>([]);
 
-  // Load current email and providers from Supabase Auth
+  // Initialize react-hook-form with Zod resolver
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    reset,
+    getValues,
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: "" },
+  });
+
+  /**
+   * On mount: load user's current email and connected providers
+   */
   useEffect(() => {
     if (!user) return;
 
     const currentEmail = user.email ?? "";
-    setEmail(currentEmail);
-    setOriginalEmail(currentEmail);
+    reset({ email: currentEmail });
     setConnectedProviders(user.app_metadata?.providers || []);
     setIsLoading(false);
-  }, [user]);
-
-  // Check if the email field was modified
-  const isModified = email !== originalEmail;
+  }, [user, reset]);
 
   /**
-   * Updates the user's email in Supabase Auth.
-   * Can only be performed if the user has no social providers connected.
-   * Supabase will send a confirmation email to the new address.
+   * Updates user's email via Supabase.
+   * - Only allowed when no social providers are connected
+   * - Sends confirmation email to new address
    */
-  const updateEmail = async () => {
-    if (!user) return;
+  const updateEmail = async (): Promise<boolean> => {
+    if (!user) return false;
 
+    const { email } = getValues();
     const isOnlyEmailProvider =
       connectedProviders.length === 1 && connectedProviders[0] === "email";
 
@@ -53,25 +66,27 @@ export function useEmail() {
       toast.error(
         "You can't change your email while a social provider is connected."
       );
-      return;
+      return false;
     }
 
     const { error } = await supabase.auth.updateUser({ email });
 
     if (error) {
       toast.error(error.message);
-      return;
+      return false;
     }
 
+    reset({ email }); // clear dirty state
     toast.success("Confirmation email sent! Please check your inbox.");
-    setOriginalEmail(email);
+    return true;
   };
 
   return {
-    email,
-    setEmail,
-    isModified,
-    updateEmail,
-    isLoading,
+    register, // bind input
+    handleSubmit, // handle form submission
+    updateEmail, // submission logic
+    error: errors.email?.message ?? "", // validation error
+    isModified: isDirty, // email was changed
+    isLoading, // loading state
   };
 }

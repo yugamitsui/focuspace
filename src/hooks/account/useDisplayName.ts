@@ -1,50 +1,77 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { displayNameSchema, DisplayNameFormData } from "@/schemas/auth";
 import { getDisplayName, updateDisplayName } from "@/lib/supabase/profiles";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import toast from "react-hot-toast";
 
 /**
- * Custom hook to manage the user's display name.
+ * useDisplayName
  *
- * This hook:
- * - Fetches the current display name from the `profiles` table
- * - Provides a setter to update the local state
- * - Exposes a `saveDisplayName` function to persist changes to Supabase
- * - Returns loading state for initial data fetch
+ * A custom hook that manages the user's display name form using react-hook-form and Zod.
+ *
+ * Features:
+ * - Loads the current display name from Supabase
+ * - Initializes react-hook-form with Zod schema
+ * - Tracks modification via isDirty
+ * - Submits and saves the new name to Supabase
+ * - Provides validation error, loading state, and error handling
  */
 export function useDisplayName() {
   const { user } = useCurrentUser();
-  const [displayName, setDisplayName] = useState("");
-  const [originalDisplayName, setOriginalDisplayName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize react-hook-form
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    reset,
+    getValues,
+  } = useForm<DisplayNameFormData>({
+    resolver: zodResolver(displayNameSchema),
+    defaultValues: { name: "" },
+  });
+
+  /**
+   * Load the current display name from Supabase and populate the form.
+   */
   useEffect(() => {
     if (!user) return;
 
     (async () => {
       const name = await getDisplayName(user.id);
-      const safeName = name ?? "";
-      setDisplayName(safeName);
-      setOriginalDisplayName(safeName);
+      reset({ name: name ?? "" });
       setIsLoading(false);
     })();
-  }, [user]);
+  }, [user, reset]);
 
-  const isModified = displayName !== originalDisplayName;
+  /**
+   * Save the updated display name to Supabase with error handling.
+   */
+  const saveDisplayName = async (): Promise<boolean> => {
+    if (!user) return false;
 
-  const saveDisplayName = async () => {
-    if (!user) return;
+    const { name } = getValues();
 
-    await updateDisplayName(user.id, displayName);
-    setOriginalDisplayName(displayName);
-    toast.success("Your name has been updated.");
+    try {
+      await updateDisplayName(user.id, name);
+      reset({ name }); // Reset dirty state
+      toast.success("Your name has been updated.");
+      return true;
+    } catch {
+      toast.error("Failed to update name.");
+      return false;
+    }
   };
 
   return {
-    displayName,
-    setDisplayName,
-    isModified,
-    saveDisplayName,
-    isLoading,
+    register, // bind input
+    handleSubmit, // handle form submission
+    saveDisplayName, // trigger save logic
+    error: errors.name?.message ?? "", // validation error message
+    isModified: isDirty, // true if input is dirty
+    isLoading, // true while loading initial data
   };
 }

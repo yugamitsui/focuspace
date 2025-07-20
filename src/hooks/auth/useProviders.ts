@@ -9,16 +9,18 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 /**
  * useProviders
  *
- * Manages connecting and disconnecting social authentication providers (Google, GitHub, Discord).
+ * A custom hook to manage the connection state of social auth providers.
  *
  * Responsibilities:
- * - Tracks which providers are currently connected to the authenticated user
- * - Verifies email consistency between primary and newly connected identities
- * - Provides connect/disconnect functions for use in UI
+ * - Tracks connected social providers (e.g., Google, GitHub)
+ * - Ensures identity email matches when linking new providers
+ * - Provides connect/disconnect functions
  *
- * This hook is meant to be used in account settings pages where users manage their connected accounts.
+ * Design notes:
+ * - Uses `user.email` directly for identity matching
+ * - Email is not passed from external props to avoid inconsistency
  */
-export function useProviders(email: string) {
+export function useProviders() {
   const { user } = useCurrentUser();
   const [connectedProviders, setConnectedProviders] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,19 +28,20 @@ export function useProviders(email: string) {
   useEffect(() => {
     if (!user) return;
 
+    const currentEmail = user.email ?? "";
     let updatedProviders = user.app_metadata?.providers || [];
 
-    // Flag used to trigger email identity validation after connecting a new provider
+    // Used to trigger identity verification after redirect
     const shouldCheckIdentity = localStorage.getItem("should_check_identity");
 
     (async () => {
       if (shouldCheckIdentity) {
         const identities = user.identities;
 
-        // If multiple identities exist, check if any of them use a different email
         if (identities && identities.length > 1) {
+          // Check if any connected identity has a mismatched email
           const hasMismatch = identities.some(
-            (id) => id.identity_data?.email !== email
+            (id) => id.identity_data?.email !== currentEmail
           );
 
           if (hasMismatch) {
@@ -46,15 +49,13 @@ export function useProviders(email: string) {
               "You can only connect accounts with the same email address."
             );
 
-            // Find and disconnect the mismatched identity
+            // Attempt to unlink the mismatched identity
             const mismatched = identities.find(
-              (id) => id.identity_data?.email !== email
+              (id) => id.identity_data?.email !== currentEmail
             );
 
             if (mismatched) {
               await supabase.auth.unlinkIdentity(mismatched);
-
-              // Refresh user state and provider list
               const { data: refreshed } = await supabase.auth.getUser();
               updatedProviders = refreshed?.user?.app_metadata?.providers || [];
             }
@@ -63,22 +64,22 @@ export function useProviders(email: string) {
           }
         }
 
-        // Clear the flag regardless of outcome
+        // Clear the temporary flag
         localStorage.removeItem("should_check_identity");
       }
 
       setConnectedProviders(updatedProviders);
       setIsLoading(false);
     })();
-  }, [user, email]);
+  }, [user]);
 
   /**
-   * Starts the process of connecting a new social provider.
-   * A flag is set in localStorage to validate identities after redirect.
+   * Connect a new social auth provider
+   * - Stores a flag in localStorage to verify identity post-redirect
    */
   const connectProvider = async (provider: SocialProvider) => {
     localStorage.setItem("should_check_identity", "true");
-    localStorage.setItem("skip_auth_redirect", "true"); // Prevents unintended redirect during session reset
+    localStorage.setItem("skip_auth_redirect", "true");
 
     const origin = window.location.origin;
     const { error } = await supabase.auth.linkIdentity({
@@ -87,7 +88,6 @@ export function useProviders(email: string) {
     });
 
     if (error) {
-      // If an error occurs, clean up flags immediately
       localStorage.removeItem("should_check_identity");
       localStorage.removeItem("skip_auth_redirect");
       toast.error(error.message);
@@ -95,8 +95,9 @@ export function useProviders(email: string) {
   };
 
   /**
-   * Disconnects a previously connected social provider.
-   * Prompts for confirmation before proceeding.
+   * Disconnect a previously connected social provider
+   * - Confirms with the user
+   * - Disconnect the provider if it exists
    */
   const disconnectProvider = async (provider: SocialProvider) => {
     const confirm = window.confirm(
@@ -135,7 +136,7 @@ export function useProviders(email: string) {
       } disconnected successfully.`
     );
 
-    // Refresh the list of connected providers
+    // Refresh connected provider list
     const { data: refreshed } = await supabase.auth.getUser();
     setConnectedProviders(refreshed?.user?.app_metadata?.providers || []);
   };
