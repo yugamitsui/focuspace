@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent, useRef } from "react";
+import { ChangeEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -16,6 +16,7 @@ import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 import { useDisplayName } from "@/hooks/account/useDisplayName";
 import { useEmail } from "@/hooks/account/useEmail";
 import { useAvatar } from "@/hooks/account/useAvatar";
+import { useProviders } from "@/hooks/account/useProviders";
 
 type SocialProvider = "google" | "github" | "discord";
 const SOCIAL_PROVIDERS: SocialProvider[] = ["google", "github", "discord"];
@@ -46,52 +47,12 @@ export default function AccountPage() {
 
   const { avatarUrl, isLoading: isAvatarLoading, uploadAvatar } = useAvatar();
 
-  const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      if (user === null) return;
-
-      let updatedProviders = user.app_metadata?.providers || [];
-      const shouldCheckIdentity = localStorage.getItem("should_check_identity");
-
-      if (shouldCheckIdentity) {
-        const identities = user.identities;
-
-        if (identities && identities.length > 1) {
-          const mismatch = identities.some(
-            (id) => id.identity_data?.email !== email
-          );
-
-          if (mismatch) {
-            toast.error(
-              "You can only connect accounts with the same email address."
-            );
-
-            const wrongIdentity = identities.find(
-              (id) => id.identity_data?.email !== email
-            );
-
-            if (wrongIdentity) {
-              await supabase.auth.unlinkIdentity(wrongIdentity);
-
-              const { data: refreshedUser } = await supabase.auth.getUser();
-              updatedProviders =
-                refreshedUser?.user?.app_metadata?.providers || [];
-            }
-          } else {
-            toast.success("Account connected successfully.");
-          }
-        }
-
-        localStorage.removeItem("should_check_identity");
-      }
-
-      setLinkedProviders(updatedProviders);
-      setLoading(false);
-    })();
-  }, [router, user, email]);
+  const {
+    connectedProviders,
+    isLoading: isProviderLoading,
+    connectProvider,
+    disconnectProvider,
+  } = useProviders(email);
 
   const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !e.target.files[0]) return;
@@ -136,63 +97,7 @@ export default function AccountPage() {
     }
   };
 
-  const handleProviderLink = async (provider: SocialProvider) => {
-    localStorage.setItem("should_check_identity", "true");
-
-    const origin = window.location.origin;
-    const { error } = await supabase.auth.linkIdentity({
-      provider,
-      options: { redirectTo: `${origin}/account` },
-    });
-
-    if (error) {
-      localStorage.removeItem("should_check_identity");
-      toast.error(error.message);
-    }
-  };
-
-  const handleProviderUnlink = async (provider: SocialProvider) => {
-    const confirmed = window.confirm(
-      `Disconnect from ${provider.charAt(0).toUpperCase() + provider.slice(1)}?`
-    );
-    if (!confirmed) return;
-
-    const { data: identitiesData, error: identitiesError } =
-      await supabase.auth.getUserIdentities();
-
-    if (identitiesError) {
-      toast.error("Failed to fetch identities.");
-      return;
-    }
-
-    const identity = identitiesData?.identities.find(
-      (id) => id.provider === provider
-    );
-
-    if (!identity) {
-      toast.error("No identity found for provider.");
-      return;
-    }
-
-    const { error } = await supabase.auth.unlinkIdentity(identity);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success(
-      `${
-        provider.charAt(0).toUpperCase() + provider.slice(1)
-      } disconnected successfully.`
-    );
-
-    const { data: userData } = await supabase.auth.getUser();
-    if (userData?.user) {
-      setLinkedProviders(userData.user.app_metadata.providers || []);
-    }
-  };
-
-  if (loading || isNameLoading || isAvatarLoading || isEmailLoading)
+  if (isNameLoading || isAvatarLoading || isEmailLoading || isProviderLoading)
     return (
       <main className="min-h-screen flex items-center justify-center">
         <p className="text-center text-white">Loading…</p>
@@ -277,22 +182,22 @@ export default function AccountPage() {
           Send password-reset email
         </button>
 
-        {/* Social provider links */}
+        {/* Social provider connections */}
         <div className="text-white space-y-2">
           <p className="font-semibold">Social Connections</p>
           {SOCIAL_PROVIDERS.map((provider) => (
             <div key={provider} className="flex justify-between items-center">
               <span className="capitalize">{provider}</span>
-              {linkedProviders.includes(provider) ? (
+              {connectedProviders.includes(provider) ? (
                 <button
-                  onClick={() => handleProviderUnlink(provider)}
+                  onClick={() => disconnectProvider(provider)}
                   className="text-sm text-green-500 cursor-pointer hover:underline"
                 >
                   Connected
                 </button>
               ) : (
                 <button
-                  onClick={() => handleProviderLink(provider)}
+                  onClick={() => connectProvider(provider)}
                   className="text-sm text-blue-500 cursor-pointer hover:underline"
                 >
                   Disconnected

@@ -26,9 +26,12 @@ export function useCurrentUser() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(() => {
       setTimeout(() => {
-        setUser(session?.user ?? null);
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          setUser(user ?? null);
+          setIsLoading(false);
+        });
         setIsLoading(false);
       }, 0);
     });
