@@ -21,6 +21,7 @@ export default function Header() {
   const inAuthPages =
     pathname.startsWith("/signin") ||
     pathname.startsWith("/signup") ||
+    pathname.startsWith("/forgot-password") ||
     pathname.startsWith("/reset-password");
 
   const [menuOpen, setMenuOpen] = useState(false);

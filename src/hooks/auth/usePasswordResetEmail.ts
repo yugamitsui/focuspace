@@ -5,22 +5,26 @@ import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 /**
  * usePasswordResetEmail
  *
- * A custom hook to send a password reset email using the currently authenticated user's email.
+ * A flexible hook to send a password reset email.
  *
  * Features:
- * - Automatically retrieves the current user's email
- * - Sends a reset email with a redirect to `/reset-password`
- * - Provides user feedback via toast messages
+ * - Uses the current user's email by default
+ * - Accepts an optional email override (e.g. from user input)
+ * - Sends reset email with redirect to /reset-password
+ * - Handles errors and user feedback with toast
  *
  * Usage:
  * const { sendPasswordResetEmail } = usePasswordResetEmail();
- * await sendPasswordResetEmail();
+ * await sendPasswordResetEmail(); // Uses current user
+ * await sendPasswordResetEmail("someone@example.com"); // Overrides email
  */
 export function usePasswordResetEmail() {
   const { user } = useCurrentUser();
 
-  const sendPasswordResetEmail = async () => {
-    if (!user || !user.email) {
+  const sendPasswordResetEmail = async (emailOverride?: string) => {
+    const email = emailOverride ?? user?.email;
+
+    if (!email) {
       toast.error("Email not available.");
       return;
     }
@@ -29,7 +33,7 @@ export function usePasswordResetEmail() {
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";
 
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${origin}/reset-password`,
       });
 

@@ -4,31 +4,34 @@ import Link from "next/link";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { resetPasswordSchema, ResetPasswordFormData } from "@/schemas/auth";
-import { useResetPassword } from "@/hooks/auth/useResetPassword";
+import { emailSchema, EmailFormData } from "@/schemas/auth";
+import { usePasswordResetEmail } from "@/hooks/auth/usePasswordResetEmail";
 
-export default function ResetPasswordPage() {
-  const { resetPassword } = useResetPassword();
+export default function ForgotPasswordPage() {
+  const { sendPasswordResetEmail } = usePasswordResetEmail();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
   });
 
-  const onSubmit = async (data: ResetPasswordFormData) => {
-    await resetPassword(data.password);
+  const onSubmit = async (data: EmailFormData) => {
+    await sendPasswordResetEmail(data.email);
   };
 
   return (
     <main className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-md space-y-8">
         <div className="space-y-4 text-center">
-          <h1 className="text-3xl font-bold text-white">Reset your password</h1>
+          <h1 className="text-3xl font-bold text-white">
+            Forgot your password?
+          </h1>
           <p className="text-sm">
-            Create and confirm a new password to update your account.
+            Enter your email and we&apos;ll send you a link to reset your
+            password.
           </p>
         </div>
 
@@ -39,28 +42,14 @@ export default function ResetPasswordPage() {
         >
           <div>
             <input
-              type="password"
-              placeholder="New password"
-              {...register("password")}
+              type="email"
+              placeholder="Email"
+              {...register("email")}
               className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
             />
-            {errors.password && (
+            {errors.email && (
               <p className="text-red-500 text-sm mt-2">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              {...register("confirm")}
-              className="w-full px-6 py-3 border text-white placeholder:text-white/50 border-white/75 rounded-full focus:outline-none focus:border-white transition duration-500"
-            />
-            {errors.confirm && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.confirm.message}
+                {errors.email.message}
               </p>
             )}
           </div>
@@ -70,7 +59,7 @@ export default function ResetPasswordPage() {
             disabled={isSubmitting}
             className="w-full px-6 py-3 bg-white text-black rounded-full font-semibold hover:opacity-90 transition duration-500 cursor-pointer"
           >
-            Save new password
+            Send email
           </button>
         </form>
 
