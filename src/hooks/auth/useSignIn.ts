@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { SignInWithPasswordCredentials } from "@supabase/supabase-js";
 import toast from "react-hot-toast";
+import { capitalize } from "@/lib/capitalize";
 
 /**
  * Custom hook for handling user signin actions.
@@ -24,12 +25,20 @@ export function useSignIn(options?: { redirect?: string }) {
    */
   const signInWithEmail = useCallback(
     async (credentials: SignInWithPasswordCredentials) => {
-      const { error } = await supabase.auth.signInWithPassword(credentials);
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success("Successfully signed in.");
+      try {
+        const { error } = await supabase.auth.signInWithPassword(credentials);
+
+        if (error) {
+          console.error("Sign-in error:", error);
+          toast.error("Incorrect email or password. Please try again.");
+          return;
+        }
+
+        toast.success("Signed in successfully!");
         router.push(redirectPath);
+      } catch (e) {
+        console.error("Unexpected sign-in error:", e);
+        toast.error("An unexpected error occurred. Please try again later.");
       }
     },
     [router, redirectPath]
@@ -42,12 +51,21 @@ export function useSignIn(options?: { redirect?: string }) {
    */
   const signInWithOAuth = useCallback(
     async (provider: "google" | "github" | "discord", redirectTo?: string) => {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: redirectTo ? { redirectTo } : undefined,
-      });
-      if (error) {
-        toast.error(error.message);
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: redirectTo ? { redirectTo } : undefined,
+        });
+
+        if (error) {
+          console.error(`OAuth sign-ip error (${provider}):`, error);
+          toast.error(
+            `Failed to sign in with ${capitalize(provider)}. Please try again.`
+          );
+        }
+      } catch (e) {
+        console.error("Unexpected OAuth sign-in error:", e);
+        toast.error("An unexpected error occurred. Please try again later.");
       }
     },
     []

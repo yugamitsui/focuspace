@@ -58,10 +58,11 @@ export function useDisplayName() {
     try {
       await updateDisplayName(user.id, name);
       reset({ name }); // Reset dirty state
-      toast.success("Your name has been updated.");
+      toast.success("Name updated successfully!");
       return true;
-    } catch {
-      toast.error("Failed to update name.");
+    } catch (e) {
+      console.error("Failed to update display name:", e);
+      toast.error("Failed to update name. Please try again later.");
       return false;
     }
   };

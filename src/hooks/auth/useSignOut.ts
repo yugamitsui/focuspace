@@ -20,12 +20,20 @@ export function useSignOut(options?: { redirect?: string }) {
    * Shows a toast and redirects on success.
    */
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Successfully signed out.");
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Sign-out error:", error);
+        toast.error("Failed to sign out. Please try again.");
+        return;
+      }
+
+      toast.success("Signed out. See you again soon!");
       router.push(redirectPath);
+    } catch (e) {
+      console.error("Unexpected sign-out error:", e);
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   }, [router, redirectPath]);
 

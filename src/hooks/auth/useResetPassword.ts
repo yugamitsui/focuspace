@@ -27,7 +27,6 @@ export function useResetPassword() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
-      console.log(event);
       if (event === "PASSWORD_RECOVERY") {
         setCanResetPassword(true);
       }
@@ -43,18 +42,24 @@ export function useResetPassword() {
    * @param newPassword - The new password to set
    */
   const resetPassword = async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
 
-    if (error) {
-      toast.error(error.message);
-      return;
+      if (error) {
+        console.error("Failed to reset password:", error);
+        toast.error("Failed to reset your password. Please try again later.");
+        return;
+      }
+
+      toast.success("Your password has been reset. Please sign in again.");
+      await supabase.auth.signOut();
+      router.push("/signin");
+    } catch (e) {
+      console.error("Unexpected error during password reset:", e);
+      toast.error("An unexpected error occurred. Please try again later.");
     }
-
-    toast.success("Your password has been reset. Please sign in again.");
-    await supabase.auth.signOut();
-    router.push("/signin");
   };
 
   return {

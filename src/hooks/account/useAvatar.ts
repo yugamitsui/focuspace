@@ -44,7 +44,7 @@ export function useAvatar() {
     const fileName = `avatar-${Date.now()}.${fileExt}`;
     const previousUrl = avatarUrl;
 
-    const toastId = toast.loading("Uploading avatar...");
+    const toastId = toast.loading("Uploading your avatar...");
 
     // Upload new avatar to Supabase Storage
     const { error: uploadError } = await supabase.storage
@@ -52,7 +52,9 @@ export function useAvatar() {
       .upload(fileName, file, { upsert: true });
 
     if (uploadError) {
-      toast.error("Upload failed", { id: toastId });
+      toast.error("Failed to upload avatar. Please try again later.", {
+        id: toastId,
+      });
       return;
     }
 
@@ -61,24 +63,38 @@ export function useAvatar() {
     const newUrl = data?.publicUrl;
 
     if (!newUrl) {
-      toast.error("Failed to retrieve avatar URL", { id: toastId });
+      console.error("Failed to retrieve public URL for uploaded avatar.");
+      toast.error("Failed to save avatar. Please try again later.", {
+        id: toastId,
+      });
       return;
     }
 
     // Update avatar URL in profiles table
-    await updateAvatarUrl(user.id, newUrl);
-    setAvatarUrl(newUrl);
-
-    // Delete the previous avatar if it was stored in Supabase
-    const prefix = "/storage/v1/object/public/avatars/";
-    if (previousUrl.includes(prefix)) {
-      const filePath = previousUrl.split(prefix)[1];
-      if (filePath) {
-        await supabase.storage.from("avatars").remove([filePath]);
-      }
+    try {
+      await updateAvatarUrl(user.id, newUrl);
+      setAvatarUrl(newUrl);
+      toast.success("Avatar updated successfully!", { id: toastId });
+    } catch (e) {
+      console.error("Failed to update avatar URL:", e);
+      toast.error("Failed to update avatar. Please try again later.", {
+        id: toastId,
+      });
+      return;
     }
 
-    toast.success("Avatar updated!", { id: toastId });
+    // Delete previous avatar file if stored in Supabase
+    const prefix = "/storage/v1/object/public/avatars/";
+    const isSupabaseUrl = previousUrl.includes(prefix);
+    const filePath = isSupabaseUrl ? previousUrl.split(prefix)[1] : null;
+
+    if (filePath) {
+      try {
+        await supabase.storage.from("avatars").remove([filePath]);
+      } catch (e) {
+        console.error("Failed to delete previous avatar file:", e);
+      }
+    }
   };
 
   return {
