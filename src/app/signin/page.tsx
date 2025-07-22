@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   GoogleLogoIcon,
   GithubLogoIcon,
@@ -30,12 +31,12 @@ export default function SignInPage() {
           </h1>
           <p className="text-sm">
             Don&apos;t have an account?{" "}
-            <a
+            <Link
               href="/signup"
               className="text-blue-600 hover:underline font-medium"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
 
@@ -109,6 +110,12 @@ export default function SignInPage() {
             <span className="font-semibold">Sign in with Discord</span>
           </button>
         </div>
+        <Link
+          href="/forgot-password"
+          className="text-sm hover:underline font-medium"
+        >
+          Forgot password
+        </Link>
       </div>
     </main>
   );
