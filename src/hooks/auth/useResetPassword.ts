@@ -1,24 +1,46 @@
-import { supabase } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
 /**
  * useResetPassword
  *
- * Custom hook to handle password reset using Supabase's token-based flow.
+ * Custom hook to handle the Supabase password reset flow.
  *
  * Responsibilities:
- * - Updates the user's password using the token in the URL (handled automatically by Supabase)
- * - Signs the user out after a successful password change
+ * - Detects password recovery state via Supabase's onAuthStateChange
+ * - Enables access to the reset password form only when PASSWORD_RECOVERY event is emitted
+ * - Updates the user's password via Supabase
+ * - Signs the user out after a successful reset
  * - Redirects the user to the sign-in page
- * - Displays toast notifications for success or error
+ *
+ * Note:
+ * This implementation assumes the use of `@supabase/supabase-js` directly,
+ * since `@supabase/ssr` does not emit PASSWORD_RECOVERY event properly.
  */
 export function useResetPassword() {
   const router = useRouter();
+  const [canResetPassword, setCanResetPassword] = useState(false);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      console.log(event);
+      if (event === "PASSWORD_RECOVERY") {
+        setCanResetPassword(true);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   /**
-   * Resets the user's password.
-   * @param newPassword - The new password entered by the user.
+   * Updates the user's password.
+   * @param newPassword - The new password to set
    */
   const resetPassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({
@@ -26,17 +48,17 @@ export function useResetPassword() {
     });
 
     if (error) {
-      // Show error toast if password update fails
       toast.error(error.message);
       return;
     }
 
-    // Show success toast and immediately sign the user out
     toast.success("Your password has been reset. Please sign in again.");
-
     await supabase.auth.signOut();
     router.push("/signin");
   };
 
-  return { resetPassword };
+  return {
+    resetPassword,
+    canResetPassword,
+  };
 }

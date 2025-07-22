@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
         </form>
 
         <Link
-          href={"/signin"}
+          href="/signin"
           className="inline-flex items-center gap-2 text-sm hover:text-white transition duration-500 cursor-pointer"
         >
           <ArrowLeftIcon size={24} />

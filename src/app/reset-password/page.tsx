@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, ResetPasswordFormData } from "@/schemas/auth";
 import { useResetPassword } from "@/hooks/auth/useResetPassword";
+import toast from "react-hot-toast";
 
 export default function ResetPasswordPage() {
-  const { resetPassword } = useResetPassword();
+  const router = useRouter();
+  const { resetPassword, canResetPassword } = useResetPassword();
 
   const {
     register,
@@ -21,6 +25,27 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordFormData) => {
     await resetPassword(data.password);
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!canResetPassword) {
+        toast.error(
+          "Reset link is invalid or expired. Please request a new one."
+        );
+        router.push("/");
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [canResetPassword, router]);
+
+  if (!canResetPassword) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-center text-white">Validating reset link...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center">
@@ -75,7 +100,7 @@ export default function ResetPasswordPage() {
         </form>
 
         <Link
-          href={"/signin"}
+          href="/signin"
           className="inline-flex items-center gap-2 text-sm hover:text-white transition duration-500 cursor-pointer"
         >
           <ArrowLeftIcon size={24} />
