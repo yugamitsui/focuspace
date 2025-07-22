@@ -11,9 +11,9 @@ type AudioVisualizerProps = {
 };
 
 export default function AudioVisualizer({
-  width = 196,
+  width = 220,
   height = 64,
-  barCount = 20,
+  barCount = 32,
   gap = 4,
 }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

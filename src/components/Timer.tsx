@@ -27,18 +27,19 @@ export default function Timer({
   reset,
 }: TimerProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-16">
+    <div className="flex flex-col items-center gap-16">
       <TimerDurationSelector
         current={currentId}
         onSelect={onSelect}
         hasStarted={hasStarted}
       />
 
-      <div className="text-white font-medium text-8xl">
-        {formatTime(timeLeft)}
+      <div className="flex flex-col items-center justify-center gap-10">
+        <p className="text-white font-medium text-8xl">
+          {formatTime(timeLeft)}
+        </p>
+        <AudioVisualizer />
       </div>
-
-      <AudioVisualizer />
 
       <div className="px-6 py-2 rounded-full flex items-center justify-center gap-2 bg-black/50">
         <MuteButton />
