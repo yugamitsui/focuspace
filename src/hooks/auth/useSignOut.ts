@@ -1,33 +1,36 @@
-import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
 /**
- * Custom hook for handling user signout actions.
+ * Custom hook to sign out the current user from Supabase auth.
  *
- * Provides a function to sign out the currently authenticated user.
- * You can optionally specify a redirect URL on success.
- *
- * @param options - Optional config such as redirect path
+ * Responsibilities:
+ * - Signs out the authenticated user
+ * - Displays toast messages for success or failure
  */
-export function useSignOut(options?: { redirect?: string }) {
-  const router = useRouter();
-  const redirectPath = options?.redirect ?? "/";
-
+export function useSignOut() {
   /**
-   * Sign out the current user from Supabase auth.
-   * Shows a toast and redirects on success.
+   * Signs out the current user from Supabase auth.
+   * Shows a success toast if completed, or an error toast if failed.
+   * Caller is responsible for any post-signout navigation or state reset.
    */
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Successfully signed out.");
-      router.push(redirectPath);
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Sign-out error:", error);
+        toast.error("Failed to sign out. Please try again.");
+        return;
+      }
+
+      toast.success("Signed out. See you again soon!");
+    } catch (e) {
+      console.error("Unexpected sign-out error:", e);
+      toast.error("An unexpected error occurred. Please try again later.");
     }
-  }, [router, redirectPath]);
+  }, []);
 
   return {
     signOut,

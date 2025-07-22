@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
  * - Tracks if the email has changed
  * - Validates new email address
  * - Triggers Supabase confirmation email on update
- * - Blocks update if social providers are linked
+ * - Blocks update if social providers are connected
  */
 export function useEmail() {
   const { user } = useCurrentUser();
@@ -62,7 +62,7 @@ export function useEmail() {
 
     if (!isOnlyEmailProvider) {
       toast.error(
-        "You can't change your email while a social provider is connected."
+        "You can't change your email while you're signed in with a social provider."
       );
       return false;
     }
@@ -70,12 +70,15 @@ export function useEmail() {
     const { error } = await supabase.auth.updateUser({ email });
 
     if (error) {
-      toast.error(error.message);
+      console.error("Failed to update email:", error);
+      toast.error("Failed to update email. Please try again later.");
       return false;
     }
 
     reset({ email }); // clear dirty state
-    toast.success("Confirmation email sent! Please check your inbox.");
+    toast.success(
+      "Confirmation email sent to your new address. Please check your inbox."
+    );
     return true;
   };
 

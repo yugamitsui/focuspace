@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
  * Custom hook to handle permanent account deletion via Supabase Edge Function.
  *
  * Responsibilities:
- * - Confirms user intent
+ * - Confirms user intent twice
  * - Invokes Supabase Edge Function `delete-user` to remove user data
  * - Signs the user out and redirects to home on success
  * - Displays toast messages on success or error
@@ -19,8 +19,15 @@ export function useDeleteAccount() {
   const router = useRouter();
 
   const deleteAccount = async () => {
-    const confirmed = confirm("Delete account permanently?");
-    if (!confirmed || !user) return;
+    const first = confirm("Are you sure you want to delete your account?");
+    if (!first) return;
+
+    const second = confirm(
+      "This is your final confirmation. All your data will be permanently deleted and cannot be recovered. Are you sure you want to proceed?"
+    );
+    if (!second || !user) return;
+
+    localStorage.setItem("skip_auth_redirect", "true");
 
     try {
       const { error } = await supabase.functions.invoke("delete-user", {
@@ -28,16 +35,19 @@ export function useDeleteAccount() {
       });
 
       if (error) {
-        toast.error(error.message);
+        console.error("Supabase delete-user function error:", error);
+        localStorage.removeItem("skip_auth_redirect");
+        toast.error("Failed to delete your account. Please try again later.");
         return;
       }
 
-      toast.success("Account deleted.");
+      toast.success("Account deleted. You're always welcome back!");
       await supabase.auth.signOut();
       router.push("/");
     } catch (e) {
       console.error("Unexpected error:", e);
-      toast.error("Unexpected error occurred.");
+      localStorage.removeItem("skip_auth_redirect");
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   };
 

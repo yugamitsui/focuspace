@@ -1,5 +1,6 @@
-import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
+import { supabase } from "@/lib/supabase/client";
+
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 
 /**
@@ -25,7 +26,7 @@ export function usePasswordResetEmail() {
     const email = emailOverride ?? user?.email;
 
     if (!email) {
-      toast.error("Email not available.");
+      toast.error("No email address available to send reset link.");
       return;
     }
 
@@ -38,13 +39,14 @@ export function usePasswordResetEmail() {
       });
 
       if (error) {
-        toast.error(error.message);
+        console.error("Supabase resetPasswordForEmail error:", error);
+        toast.error("Failed to send reset email. Please try again later.");
       } else {
-        toast.success("Password reset email sent.");
+        toast.success("Password reset email sent. Please check your inbox.");
       }
     } catch (e) {
-      toast.error("Failed to send password reset email.");
-      console.error("sendPasswordResetEmail error:", e);
+      console.error("Unexpected error in sendPasswordResetEmail:", e);
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   };
 
