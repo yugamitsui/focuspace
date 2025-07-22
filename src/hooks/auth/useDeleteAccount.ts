@@ -27,6 +27,8 @@ export function useDeleteAccount() {
     );
     if (!second || !user) return;
 
+    localStorage.setItem("skip_auth_redirect", "true");
+
     try {
       const { error } = await supabase.functions.invoke("delete-user", {
         body: JSON.stringify({ user_id: user.id }),
@@ -34,15 +36,17 @@ export function useDeleteAccount() {
 
       if (error) {
         console.error("Supabase delete-user function error:", error);
+        localStorage.removeItem("skip_auth_redirect");
         toast.error("Failed to delete your account. Please try again later.");
         return;
       }
 
-      toast.success("Your account was deleted. You're welcome back anytime!");
+      toast.success("Account deleted. You're always welcome back!");
       await supabase.auth.signOut();
       router.push("/");
     } catch (e) {
       console.error("Unexpected error:", e);
+      localStorage.removeItem("skip_auth_redirect");
       toast.error("An unexpected error occurred. Please try again later.");
     }
   };
