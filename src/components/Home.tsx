@@ -11,6 +11,7 @@ import { backgroundImages } from "@/constants/backgroundImages";
 import { visualEffects } from "@/constants/visualEffects";
 import { timerDurations } from "@/constants/timerDurations";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { useNavigationGuard } from "@/hooks/useNavigationGuard";
 import { useTimer } from "@/hooks/useTimer";
 import { playBgm, stopBgm } from "@/lib/bgmPlayer";
@@ -36,11 +37,10 @@ export default function Home() {
     visualEffects.find((v) => v.id === visualEffectId)?.component ??
     visualEffects[0].component;
 
-  const { timeLeft, isRunning, hasStarted, toggle, reset } = useTimer(
-    selectedDurationId,
-    () => selectedTrack.bgm
-  );
+  const { timeLeft, isRunning, isResting, hasStarted, toggle, reset } =
+    useTimer(selectedDurationId, () => selectedTrack.bgm);
 
+  useDynamicTitle(timeLeft, isResting, hasStarted);
   useNavigationGuard(hasStarted);
 
   useEffect(() => {
