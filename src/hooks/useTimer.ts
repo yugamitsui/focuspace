@@ -70,6 +70,7 @@ export function useTimer(durationId: string, getTrackList: () => string[]) {
   return {
     timeLeft,
     isRunning,
+    isResting,
     hasStarted,
     toggle,
     reset,
