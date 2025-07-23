@@ -30,7 +30,6 @@ export default function AudioVisualizer({
     analyser.smoothingTimeConstant = 0.85;
 
     Howler.masterGain.connect(analyser);
-    analyser.connect(audioCtx.destination);
 
     analyserRef.current = analyser;
     dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
