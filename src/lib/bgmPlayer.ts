@@ -6,6 +6,7 @@ let sound: Howl | null = null;
 let isPaused = false;
 
 export const playBgm = (tracks: string[] = []) => {
+  if (sound && sound.playing()) return;
   if (tracks.length === 0) return;
 
   if (sound) return;

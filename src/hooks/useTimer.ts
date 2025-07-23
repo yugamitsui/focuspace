@@ -54,7 +54,7 @@ export function useTimer(durationId: string, getTrackList: () => string[]) {
         pauseBgm();
       } else {
         resumeBgm();
-        if (!hasStarted) {
+        if (!hasStarted || timeLeft === duration.restTime) {
           playBgm(getTrackList());
         }
       }
