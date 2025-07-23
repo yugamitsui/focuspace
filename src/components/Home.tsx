@@ -40,7 +40,7 @@ export default function Home() {
   const { timeLeft, isRunning, isResting, hasStarted, toggle, reset } =
     useTimer(selectedDurationId, () => selectedTrack.bgm);
 
-  useDynamicTitle(timeLeft, isResting, hasStarted);
+  useDynamicTitle(timeLeft, isRunning, isResting, hasStarted);
   useNavigationGuard(hasStarted);
 
   useEffect(() => {
