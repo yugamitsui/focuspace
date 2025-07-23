@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { stopBgm } from "@/lib/bgmPlayer";
 
 export function useNavigationGuard(
   shouldGuard: boolean,
@@ -16,8 +17,10 @@ export function useNavigationGuard(
     const savedPush = originalPush.current;
 
     router.push = async (url, options) => {
-      if (shouldGuard && !confirm(message)) {
-        return;
+      if (shouldGuard) {
+        const confirmResult = confirm(message);
+        if (!confirmResult) return;
+        stopBgm();
       }
       return savedPush(url, options);
     };
