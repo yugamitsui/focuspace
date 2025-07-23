@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { supabase } from "@/lib/supabase/client";
 import { getAvatarUrl, updateAvatarUrl } from "@/lib/supabase/profiles";
-import toast from "react-hot-toast";
+import { getRandomAvatarByUserId } from "@/lib/getRandomAvatarByUserId";
 
 /**
- * Custom hook to manage the user's avatar URL.
+ * Custom hook to manage the user's avatar.
  *
- * Responsibilities:
- * - Fetch the initial avatar URL from the profiles table
- * - Upload a new avatar file to Supabase Storage
- * - Update the avatar URL in the profiles table
- * - Remove the previous avatar file from Storage if applicable
- * - Expose loading state and upload handler
+ * Features:
+ * - Fetches the avatar URL from the profiles table in Supabase
+ * - If no avatar is set, assigns a consistent default avatar based on user ID
+ * - Allows users to upload a new avatar:
+ *   - Uploads to Supabase Storage
+ *   - Updates the avatar URL in the profiles table
+ *   - Deletes the previous avatar from storage if applicable
+ * - Exposes current avatar URL, loading state, and upload handler
  */
 export function useAvatar() {
   const { user } = useCurrentUser();
@@ -20,12 +23,14 @@ export function useAvatar() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Load avatar URL on mount or when the user changes
+  // If no avatar is stored, assign a default avatar deterministically based on user ID
   useEffect(() => {
     if (!user) return;
 
     (async () => {
       const url = await getAvatarUrl(user.id);
-      setAvatarUrl(url || "/images/avatars/avatar_01.png");
+      const defaultAvatar = getRandomAvatarByUserId(user.id);
+      setAvatarUrl(url || defaultAvatar);
       setIsLoading(false);
     })();
   }, [user]);
