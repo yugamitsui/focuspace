@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { playBgm, stopBgm } from "@/lib/bgmPlayer";
+import { pauseBgm, playBgm, resumeBgm, stopBgm } from "@/lib/bgmPlayer";
 import { playTimerEndSe } from "@/lib/sePlayer";
 import { timerDurations } from "@/constants/timerDurations";
 
@@ -51,10 +51,12 @@ export function useTimer(durationId: string, getTrackList: () => string[]) {
     setIsRunning((prev) => {
       if (prev) {
         clearInterval(timerRef.current!);
-        stopBgm();
+        pauseBgm();
       } else {
-        stopBgm();
-        playBgm(getTrackList());
+        resumeBgm();
+        if (!hasStarted) {
+          playBgm(getTrackList());
+        }
       }
       return !prev;
     });
