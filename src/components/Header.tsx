@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { GearIcon, SignOutIcon } from "@phosphor-icons/react";
 import Logo from "@/assets/logo.svg";
-import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
+import { useCurrentSession } from "@/hooks/auth/useCurrentSession";
 import { useSignOut } from "@/hooks/auth/useSignOut";
 import { useAvatar } from "@/hooks/account/useAvatar";
 
@@ -14,7 +14,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { user } = useCurrentUser();
+  const { session } = useCurrentSession();
   const { signOut } = useSignOut();
   const { avatarUrl } = useAvatar();
 
@@ -50,7 +50,7 @@ export default function Header() {
       )}
 
       {!inAuthPages &&
-        (user ? (
+        (session ? (
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
