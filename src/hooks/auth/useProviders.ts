@@ -87,7 +87,6 @@ export function useProviders() {
    */
   const connectProvider = async (provider: SocialProvider) => {
     localStorage.setItem("should_check_identity", "true");
-    localStorage.setItem("skip_auth_redirect", "true");
 
     const origin = window.location.origin;
 
@@ -101,7 +100,6 @@ export function useProviders() {
     } catch (e) {
       console.error("Failed to connect provider:", e);
       localStorage.removeItem("should_check_identity");
-      localStorage.removeItem("skip_auth_redirect");
       toast.error("Failed to connect account. Please try again later.");
     }
   };

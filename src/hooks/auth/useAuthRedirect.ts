@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentSession } from "./useCurrentSession";
 
 /**
  * useAuthRedirect
@@ -12,11 +12,11 @@ import { useCurrentUser } from "./useCurrentUser";
  * - During loading (isLoading = true), does nothing
  * - Once loading completes:
  *   - If user is null and `skip_auth_redirect` is not set, redirects to "/signin"
- *   - If `skip_auth_redirect` is set (e.g. after connecting identity), skips redirection once
+ *   - If `skip_auth_redirect` is set (e.g. after deleting account), skips redirection once
  */
 export function useAuthRedirect() {
   const router = useRouter();
-  const { user, isLoading } = useCurrentUser();
+  const { session, isLoading } = useCurrentSession();
 
   useEffect(() => {
     if (isLoading) return;
@@ -24,7 +24,7 @@ export function useAuthRedirect() {
     const shouldSkipRedirect =
       localStorage.getItem("skip_auth_redirect") === "true";
 
-    if (user === null) {
+    if (session === null) {
       if (shouldSkipRedirect) {
         // Clear the flag after using it once
         localStorage.removeItem("skip_auth_redirect");
@@ -33,5 +33,5 @@ export function useAuthRedirect() {
 
       router.push("/signin");
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, session, router]);
 }
