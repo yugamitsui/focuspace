@@ -14,7 +14,7 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { session } = useCurrentSession();
+  const { session, isLoading: isSessionLoading } = useCurrentSession();
   const { signOut } = useSignOut();
   const { avatarUrl } = useAvatar();
 
@@ -50,6 +50,7 @@ export default function Header() {
       )}
 
       {!inAuthPages &&
+        !isSessionLoading &&
         (session ? (
           <div className="relative" ref={menuRef}>
             <button
@@ -58,13 +59,17 @@ export default function Header() {
               aria-haspopup="true"
               aria-expanded={menuOpen}
             >
-              <Image
-                src={avatarUrl}
-                alt="User avatar"
-                width={32}
-                height={32}
-                className="rounded-full object-cover w-8 h-8"
-              />
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt="User avatar"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-black/50 animate-pulse" />
+              )}
             </button>
 
             {menuOpen && (

@@ -19,7 +19,7 @@ import { getRandomAvatarByUserId } from "@/lib/getRandomAvatarByUserId";
  */
 export function useAvatar() {
   const { user } = useCurrentUser();
-  const [avatarUrl, setAvatarUrl] = useState("/images/avatars/avatar_01.png");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load avatar URL on mount or when the user changes
@@ -90,8 +90,8 @@ export function useAvatar() {
 
     // Delete previous avatar file if stored in Supabase
     const prefix = "/storage/v1/object/public/avatars/";
-    const isSupabaseUrl = previousUrl.includes(prefix);
-    const filePath = isSupabaseUrl ? previousUrl.split(prefix)[1] : null;
+    const isSupabaseUrl = previousUrl?.includes(prefix) ?? false;
+    const filePath = isSupabaseUrl ? previousUrl!.split(prefix)[1] : null;
 
     if (filePath) {
       try {
