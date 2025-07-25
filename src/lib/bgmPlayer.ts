@@ -21,7 +21,7 @@ const playCurrent = () => {
 
   sound = new Howl({
     src: [currentTracks[currentIndex]],
-    volume: 0.5,
+    volume: 1,
     loop: false,
     onend: () => {
       currentIndex = (currentIndex + 1) % currentTracks.length;
